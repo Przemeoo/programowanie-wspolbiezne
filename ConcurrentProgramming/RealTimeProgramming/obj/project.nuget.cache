@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "MK1huM/5hD8=",
+  "success": true,
+  "projectFilePath": "C:\\Studia\\programowanie-wspolbiezne\\ConcurrentProgramming\\RealTimeProgramming\\RealTimeProgramming.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\hp\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
