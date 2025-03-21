@@ -13,11 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PresentationViewModel", "Re
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PresentationModelTest", "ReactiveInteractiveUserInterface\PresentationModelTest\PresentationModelTest.csproj", "{51FE83FF-A0DF-4622-BBAF-78EA62BD2907}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution", ".Solution", "{DE3FD7B3-8549-40D7-9515-C8C5E02F9DB8}"
-	ProjectSection(SolutionItems) = preProject
-		..\README.md = ..\README.md
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PresentationViewModelTest", "ReactiveInteractiveUserInterface\PresentationViewModelTest\PresentationViewModelTest.csproj", "{8F68B3AE-490D-4B8D-A2C8-421E1D0DD6B2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data", "ReactiveInteractiveUserInterface\Data\Data.csproj", "{3AA27DB8-F9C6-4587-8290-0FC0FEC69AC2}"
