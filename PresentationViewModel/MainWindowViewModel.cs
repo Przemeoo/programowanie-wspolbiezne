@@ -8,10 +8,12 @@
 //__________________________________________________________________________________________
 
 using System;
+using System.Windows.Input;
 using System.Collections.ObjectModel;
 using TP.ConcurrentProgramming.Presentation.Model;
 using TP.ConcurrentProgramming.Presentation.ViewModel.MVVMLight;
 using ModelIBall = TP.ConcurrentProgramming.Presentation.Model.IBall;
+using System.Reflection.Metadata;
 
 namespace TP.ConcurrentProgramming.Presentation.ViewModel
 {
@@ -26,13 +28,16 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
     {
       ModelLayer = modelLayerAPI == null ? ModelAbstractApi.CreateModel() : modelLayerAPI;
       Observer = ModelLayer.Subscribe<ModelIBall>(x => Balls.Add(x));
-    }
+      StartCommand = new RelayCommand(StartMethod);
 
-    #endregion ctor
+        }
 
-    #region public API
+        #endregion ctor
 
-    public void Start(int numberOfBalls)
+        #region public API
+        public ICommand StartCommand { get; }
+
+        public void Start(int numberOfBalls)
     {
       if (Disposed)
         throw new ObjectDisposedException(nameof(MainWindowViewModel));
@@ -42,11 +47,22 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
 
     public ObservableCollection<ModelIBall> Balls { get; } = new ObservableCollection<ModelIBall>();
 
-    #endregion public API
+        private string _ballInput;
+        public string BallInput
+        {
+            get => _ballInput;
+            set
+            {
+                _ballInput = value;
+                RaisePropertyChanged(nameof(BallInput));
+            }
+        }
 
-    #region IDisposable
+        #endregion public API
 
-    protected virtual void Dispose(bool disposing)
+        #region IDisposable
+
+        protected virtual void Dispose(bool disposing)
     {
       if (!Disposed)
       {
@@ -79,6 +95,18 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
     private ModelAbstractApi ModelLayer;
     private bool Disposed = false;
 
-    #endregion private
-  }
+        private void StartMethod()
+        {
+            if (int.TryParse(BallInput, out int numberOfBalls) && numberOfBalls >= 1 && numberOfBalls <= 15)
+            {
+                Start(numberOfBalls);
+            }
+            else
+            {
+                
+            }
+        }
+
+        #endregion private
+    }
 }
