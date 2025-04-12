@@ -67,12 +67,15 @@ namespace TP.ConcurrentProgramming.Presentation.Model
     private double TopBackingField;
     private double LeftBackingField;
 
-    private void NewPositionNotification(object sender, IPosition e)
-    {
-      Top = e.y; Left = e.x;
-    }
+        private void NewPositionNotification(object sender, IPosition e)
+        {
+            double radius = Diameter / 2;
+            Top = e.y - radius;
+            Left = e.x - radius;
+        }
 
-    private void RaisePropertyChanged([CallerMemberName] string propertyName = "")
+
+        private void RaisePropertyChanged([CallerMemberName] string propertyName = "")
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
