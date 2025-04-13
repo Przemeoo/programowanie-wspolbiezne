@@ -33,7 +33,18 @@
         <Border BorderThickness="4" BorderBrush="Green">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,10,5">
                 <TextBlock Text="Podaj ilość kulek 1-15" />
-                <TextBox Text="{Binding BallInput}" Width="50" Margin="15,0,10,10" />
+                <TextBox Text="{Binding BallInput, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+         Width="50" Margin="15,0,10,10">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
+                            <Style.Triggers>
+                                <Trigger Property="Validation.HasError" Value="True">
+                                    <Setter Property="Background" Value="Red" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
                 <Button Command="{Binding StartCommand}" Content="Start"  Width="50" Margin="15,0,10,10"/>
             </StackPanel>
         </Border>

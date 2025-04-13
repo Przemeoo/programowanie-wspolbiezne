@@ -9,6 +9,7 @@
 
 using System;
 using System.Windows.Input;
+using System.ComponentModel;
 using System.Collections.ObjectModel;
 using TP.ConcurrentProgramming.Presentation.Model;
 using TP.ConcurrentProgramming.Presentation.ViewModel.MVVMLight;
@@ -17,7 +18,7 @@ using System.Reflection.Metadata;
 
 namespace TP.ConcurrentProgramming.Presentation.ViewModel
 {
-    public class MainWindowViewModel : ViewModelBase, IDisposable
+    public class MainWindowViewModel : ViewModelBase, IDisposable, IDataErrorInfo
     {
         #region ctor
 
@@ -94,9 +95,14 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
         private IDisposable Observer = null;
         private ModelAbstractApi ModelLayer;
         private bool Disposed = false;
+        private bool inputValidation = false;
+
 
         private void StartMethod()
         {
+            inputValidation = true;
+            RaisePropertyChanged(nameof(BallInput));
+
             if (int.TryParse(BallInput, out int numberOfBalls) && numberOfBalls >= 1 && numberOfBalls <= 15)
             {
                 Start(numberOfBalls);
@@ -108,5 +114,33 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
         }
 
         #endregion private
+
+        #region IDataErrorInfo
+
+        public string Error => null;
+
+        public string this[string columnName]
+        {
+            get
+            {
+                if (!inputValidation)
+                    return null;
+
+                if (columnName == nameof(BallInput))
+                {
+                    if (!int.TryParse(BallInput, out int value))
+                        return "The value must be a number";
+
+                    if (value < 1 || value > 15)
+                        return "The number must be between 1 and 15";
+                }
+
+                return null;
+            }
+        }
+
+        #endregion
+
+
     }
 }
