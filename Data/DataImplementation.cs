@@ -51,7 +51,7 @@ namespace TP.ConcurrentProgramming.Data
                     (random.NextDouble() - 0.5) * 3
                 );
 
-                Ball newBall = new(startingPosition, initialVelocity, radius);
+                Ball newBall = new(startingPosition, initialVelocity, tableWidth, tableHeight);
                 upperLayerHandler(startingPosition, newBall);
                 BallsList.Add(newBall);
             }
