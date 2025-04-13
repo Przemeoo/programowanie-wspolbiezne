@@ -25,25 +25,38 @@ namespace TP.ConcurrentProgramming.Data
 
         #region DataAbstractAPI
 
-        public override void Start(int numberOfBalls, Action<IVector, IBall> upperLayerHandler)
+        private  Vector TableSize;
+
+        public override void Start(int numberOfBalls, Action<IVector, IBall> upperLayerHandler, double tableWidth, double tableHeight)
         {
             if (Disposed)
                 throw new ObjectDisposedException(nameof(DataImplementation));
             if (upperLayerHandler == null)
                 throw new ArgumentNullException(nameof(upperLayerHandler));
 
+            TableSize = new Vector(tableWidth, tableHeight);
+
             Random random = new Random();
             for (int i = 0; i < numberOfBalls; i++)
             {
-                Vector startingPosition = new(random.Next(40, 360), random.Next(40, 360));
-                Vector initialVelocity = new((random.NextDouble() - 0.5) * 3, (random.NextDouble() - 0.5) * 3);
-                double radius = 10; 
+                double radius = 10;
+
+                Vector startingPosition = new(
+                    random.Next((int)radius, (int)(tableWidth - radius)),
+                    random.Next((int)radius, (int)(tableHeight - radius))
+                );
+
+                Vector initialVelocity = new(
+                    (random.NextDouble() - 0.5) * 3,
+                    (random.NextDouble() - 0.5) * 3
+                );
 
                 Ball newBall = new(startingPosition, initialVelocity, radius);
                 upperLayerHandler(startingPosition, newBall);
                 BallsList.Add(newBall);
             }
         }
+
 
         #endregion DataAbstractAPI
 
@@ -79,14 +92,15 @@ namespace TP.ConcurrentProgramming.Data
         private readonly Timer MoveTimer;
         private List<Ball> BallsList = new();
 
+
         private void Move(object? state)
         {
-            const double width = 392;
-            const double height = 392;
+            if (TableSize == null)
+                return;
 
             foreach (Ball ball in BallsList)
             {
-                ball.UpdatePosition(width, height);
+                ball.Move(TableSize);
             }
         }
 

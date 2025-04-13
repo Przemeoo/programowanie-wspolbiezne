@@ -38,11 +38,11 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
         #region public API
         public ICommand StartCommand { get; }
 
-        public void Start(int numberOfBalls)
+        public void Start(int numberOfBalls, double tableWidth, double tableHeight)
         {
             if (Disposed)
                 throw new ObjectDisposedException(nameof(MainWindowViewModel));
-            ModelLayer.Start(numberOfBalls);
+            ModelLayer.Start(numberOfBalls, tableWidth, tableHeight);
             Observer.Dispose();
         }
 
@@ -96,6 +96,8 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
         private ModelAbstractApi ModelLayer;
         private bool Disposed = false;
         private bool inputValidation = false;
+        private double tableWidth;
+        private double tableHeight;
 
 
         private void StartMethod()
@@ -105,7 +107,7 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
 
             if (int.TryParse(BallInput, out int numberOfBalls) && numberOfBalls >= 1 && numberOfBalls <= 15)
             {
-                Start(numberOfBalls);
+                Start(numberOfBalls,tableWidth, tableHeight);
             }
             else
             {

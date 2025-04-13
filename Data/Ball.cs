@@ -46,46 +46,39 @@ namespace TP.ConcurrentProgramming.Data
             NewPositionNotification?.Invoke(this, Position);
         }
 
-        internal void Move(Vector delta)
-        {
-            Position = new Vector(Position.x + delta.x, Position.y + delta.y);
-            RaiseNewPositionChangeNotification();
-        }
-
-        internal void UpdatePosition(double width, double height)
+        internal void Move(Vector tableSize)
         {
             Vector velocity = (Vector)Velocity;
-            Move(velocity);
-            Vector pos = Position;
+            Position = new Vector(Position.x + velocity.x, Position.y + velocity.y);
 
-            // Kolizja z lewą/prawą krawędzią
-            if (pos.x  - Radius < 0)
+            // Kolizja z lewą/prawą
+            if (Position.x - Radius < 0)
             {
-                pos = new Vector(Radius, pos.y);
+                Position = new Vector(Radius, Position.y);
                 velocity = new Vector(-velocity.x, velocity.y);
             }
-            else if (pos.x + Radius > width)
+            else if (Position.x + Radius > tableSize.x)
             {
-                pos = new Vector(width - Radius, pos.y);
+                Position = new Vector(tableSize.x - Radius, Position.y);
                 velocity = new Vector(-velocity.x, velocity.y);
             }
 
             // Kolizja z górą/dołem
-            if (pos.y - Radius < 0)
+            if (Position.y - Radius < 0)
             {
-                pos = new Vector(pos.x, Radius);
+                Position = new Vector(Position.x, Radius);
                 velocity = new Vector(velocity.x, -velocity.y);
             }
-            else if (pos.y + Radius > height)
+            else if (Position.y + Radius > tableSize.y)
             {
-                pos = new Vector(pos.x, height - Radius);
+                Position = new Vector(Position.x, tableSize.y - Radius);
                 velocity = new Vector(velocity.x, -velocity.y);
             }
 
-            Position = pos;
             Velocity = velocity;
             RaiseNewPositionChangeNotification();
         }
+
 
         #endregion private
     }

@@ -10,7 +10,7 @@
         <vm:MainWindowViewModel />
     </Window.DataContext>
     <StackPanel HorizontalAlignment="Center">
-        <Border BorderThickness="4" BorderBrush="Green" Height="400" Width="400">
+        <Border BorderThickness="4" BorderBrush="Green" Width="{Binding TableWidth}" Height="{Binding TableHeight}">
             <ItemsControl ItemsSource="{Binding Balls}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>

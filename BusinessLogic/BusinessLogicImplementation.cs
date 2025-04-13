@@ -37,13 +37,13 @@ namespace TP.ConcurrentProgramming.BusinessLogic
       Disposed = true;
     }
 
-    public override void Start(int numberOfBalls, Action<IPosition, IBall> upperLayerHandler)
+    public override void Start(int numberOfBalls, Action<IPosition, IBall> upperLayerHandler, double tableWidth, double tableHeight)
     {
       if (Disposed)
         throw new ObjectDisposedException(nameof(BusinessLogicImplementation));
       if (upperLayerHandler == null)
         throw new ArgumentNullException(nameof(upperLayerHandler));
-      layerBellow.Start(numberOfBalls, (startingPosition, databall) => upperLayerHandler(new Position(startingPosition.x, startingPosition.x), new Ball(databall)));
+      layerBellow.Start(numberOfBalls, (startingPosition, databall) => upperLayerHandler(new Position(startingPosition.x, startingPosition.x), new Ball(databall)), tableWidth, tableHeight);
     }
 
     #endregion BusinessLogicAbstractAPI
