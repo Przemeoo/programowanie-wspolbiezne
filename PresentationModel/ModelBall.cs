@@ -69,9 +69,8 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
         private void NewPositionNotification(object sender, IPosition e)
         {
-            double radius = Diameter / 2;
-            Top = e.y - radius;
-            Left = e.x - radius;
+            Top = e.y;
+            Left = e.x;
         }
 
 

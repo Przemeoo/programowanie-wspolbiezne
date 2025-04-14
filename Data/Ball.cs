@@ -53,21 +53,21 @@ namespace TP.ConcurrentProgramming.Data
             Position = new Vector(Position.x + velocity.x, Position.y + velocity.y);
 
             // Kolizja z lewą/prawą
-            if (Position.x - Radius < 0)
+            if (Position.x < 0)
             {
-                Position = new Vector(Radius, Position.y);
+                Position = new Vector(0, Position.y);
                 velocity = new Vector(-velocity.x, velocity.y);
             }
-            else if (Position.x + Radius > tableSize.x)
+            else if (Position.x + Radius*2 > tableSize.x)
             {
-                Position = new Vector(tableSize.x - Radius, Position.y);
+                Position = new Vector(tableSize.x - Radius*2, Position.y);
                 velocity = new Vector(-velocity.x, velocity.y);
             }
 
             // Kolizja z górą/dołem
-            if (Position.y - Radius < 0)
+            if (Position.y < 0)
             {
-                Position = new Vector(Position.x, Radius);
+                Position = new Vector(Position.x, 0);
                 velocity = new Vector(velocity.x, -velocity.y);
             }
             else if (Position.y + Radius > tableSize.y)

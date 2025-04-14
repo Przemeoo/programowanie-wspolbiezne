@@ -18,7 +18,7 @@ namespace TP.ConcurrentProgramming.Data
 
         public DataImplementation()
         {
-            MoveTimer = new Timer(Move, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(10));
+            MoveTimer = new Timer(Move, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(20));
         }
 
         #endregion ctor
@@ -49,8 +49,8 @@ namespace TP.ConcurrentProgramming.Data
                 );
 
                 Vector initialVelocity = new(
-                    (random.NextDouble() - 0.5) * 10,
-                    (random.NextDouble() - 0.5) * 10
+                    (random.NextDouble() - 0.5) * 5,
+                    (random.NextDouble() - 0.5) * 5
                 );
 
                 Ball newBall = new(startingPosition, initialVelocity, tableWidth, tableHeight, radius);
@@ -99,11 +99,13 @@ namespace TP.ConcurrentProgramming.Data
         {
             if (TableSize == null)
                 return;
-            lock (_lock) { 
-            foreach (Ball ball in BallsList)
+            lock (_lock)
             {
-                ball.Move(TableSize);
-            }
+                var ballCopy = BallsList.ToList();
+                foreach (Ball ball in ballCopy)
+                {
+                    ball.Move(TableSize);
+                }
             }
         }
 
