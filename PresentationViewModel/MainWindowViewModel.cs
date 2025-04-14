@@ -34,6 +34,28 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
         }
 
         #endregion ctor
+        private double _tableWidth;
+        public double TableWidth
+        {
+            get => _tableWidth;
+            set
+            {
+                _tableWidth = value;
+                RaisePropertyChanged(nameof(TableWidth));
+            }
+        }
+
+        private double _tableHeight;
+        public double TableHeight
+        {
+            get => _tableHeight;
+            set
+            {
+                _tableHeight = value;
+                RaisePropertyChanged(nameof(TableHeight));
+            }
+        }
+
 
         #region public API
         public ICommand StartCommand { get; }
@@ -107,7 +129,7 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
 
             if (int.TryParse(BallInput, out int numberOfBalls) && numberOfBalls >= 1 && numberOfBalls <= 15)
             {
-                Start(numberOfBalls,tableWidth, tableHeight);
+                Start(numberOfBalls,TableWidth, TableHeight);
             }
             else
             {

@@ -29,6 +29,7 @@ namespace TP.ConcurrentProgramming.Data
 
         public override void Start(int numberOfBalls, Action<IVector, IBall> upperLayerHandler, double tableWidth, double tableHeight)
         {
+           
             if (Disposed)
                 throw new ObjectDisposedException(nameof(DataImplementation));
             if (upperLayerHandler == null)
@@ -37,21 +38,22 @@ namespace TP.ConcurrentProgramming.Data
             TableSize = new Vector(tableWidth, tableHeight);
 
             Random random = new Random();
+
             for (int i = 0; i < numberOfBalls; i++)
             {
-                double radius = 10;
 
+                double radius = 10;
                 Vector startingPosition = new(
-                    random.Next((int)radius, (int)(tableWidth - radius)),
+                    random.Next((int)radius, (int)(tableWidth - radius)),  // ← tutaj leci wyjątek
                     random.Next((int)radius, (int)(tableHeight - radius))
                 );
 
                 Vector initialVelocity = new(
-                    (random.NextDouble() - 0.5) * 3,
-                    (random.NextDouble() - 0.5) * 3
+                    (random.NextDouble() - 0.5) * 10,
+                    (random.NextDouble() - 0.5) * 10
                 );
 
-                Ball newBall = new(startingPosition, initialVelocity, tableWidth, tableHeight);
+                Ball newBall = new(startingPosition, initialVelocity, tableWidth, tableHeight, radius);
                 upperLayerHandler(startingPosition, newBall);
                 BallsList.Add(newBall);
             }
@@ -92,15 +94,16 @@ namespace TP.ConcurrentProgramming.Data
         private readonly Timer MoveTimer;
         private List<Ball> BallsList = new();
 
-
+        private readonly object _lock = new();
         private void Move(object? state)
         {
             if (TableSize == null)
                 return;
-
+            lock (_lock) { 
             foreach (Ball ball in BallsList)
             {
                 ball.Move(TableSize);
+            }
             }
         }
 

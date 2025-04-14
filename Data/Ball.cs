@@ -14,11 +14,12 @@ namespace TP.ConcurrentProgramming.Data
     {
         #region ctor
 
-        internal Ball(Vector initialPosition, Vector initialVelocity, double tableWidth, double tableHeight)
+        internal Ball(Vector initialPosition, Vector initialVelocity, double tableWidth, double tableHeight, double radius)
         {
             Position = initialPosition;
             Velocity = initialVelocity;
-  
+            Radius = radius;
+          
         }
 
         #endregion ctor
