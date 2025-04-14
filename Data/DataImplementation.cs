@@ -7,7 +7,6 @@
 //  https://github.com/mpostol/TP/discussions/182
 //
 //_____________________________________________________________________________________________________________________________________
-using System;
 using System.Diagnostics;
 
 namespace TP.ConcurrentProgramming.Data
@@ -25,11 +24,11 @@ namespace TP.ConcurrentProgramming.Data
 
         #region DataAbstractAPI
 
-        private  Vector TableSize;
+        private Vector? TableSize;
 
         public override void Start(int numberOfBalls, Action<IVector, IBall> upperLayerHandler, double tableWidth, double tableHeight)
         {
-           
+
             if (Disposed)
                 throw new ObjectDisposedException(nameof(DataImplementation));
             if (upperLayerHandler == null)
