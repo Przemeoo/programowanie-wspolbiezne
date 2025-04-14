@@ -21,6 +21,15 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
     public class MainWindowViewModel : ViewModelBase, IDisposable, IDataErrorInfo
     {
         #region ctor
+        public MainWindowViewModel(double screenWidth, double screenHeight)
+        {
+            TableWidth = screenWidth / 2;
+            TableHeight = screenHeight / 2;
+
+            ModelLayer = ModelAbstractApi.CreateModel();
+            Observer = ModelLayer.Subscribe<ModelIBall>(x => Balls.Add(x));
+            StartCommand = new RelayCommand(StartMethod);
+        }
 
         public MainWindowViewModel() : this(null)
         { }
@@ -30,7 +39,6 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
             ModelLayer = modelLayerAPI == null ? ModelAbstractApi.CreateModel() : modelLayerAPI;
             Observer = ModelLayer.Subscribe<ModelIBall>(x => Balls.Add(x));
             StartCommand = new RelayCommand(StartMethod);
-
         }
 
         #endregion ctor

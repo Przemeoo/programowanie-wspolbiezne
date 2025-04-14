@@ -42,7 +42,7 @@ namespace TP.ConcurrentProgramming.Data
             for (int i = 0; i < numberOfBalls; i++)
             {
 
-                double radius = 10;
+                double radius = 12;
 
                 Vector startingPosition = new(
                   radius + random.NextDouble() * (tableWidth - radius * 2),

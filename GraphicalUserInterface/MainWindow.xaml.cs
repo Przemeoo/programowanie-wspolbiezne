@@ -26,17 +26,9 @@ namespace TP.ConcurrentProgramming.PresentationView
             double screenWidth = SystemParameters.PrimaryScreenWidth;
             double screenHeight = SystemParameters.PrimaryScreenHeight;
 
-            MainWindowViewModel viewModel = (MainWindowViewModel)DataContext;
-            viewModel.TableWidth = screenWidth / 2;
-            viewModel.TableHeight = screenHeight / 2;
-            Loaded += Window_Loaded;
+            DataContext = new MainWindowViewModel(screenWidth, screenHeight);
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            var width = TableBorder.ActualWidth;
-            var height = TableBorder.ActualHeight;
-        }
 
         /// <summary>
         /// Raises the <seealso cref="System.Windows.Window.Closed"/> event.
