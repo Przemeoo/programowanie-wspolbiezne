@@ -34,6 +34,21 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
         }
 
         #endregion ctor
+        
+
+        #region public API
+        public ICommand StartCommand { get; }
+
+        public void Start(int numberOfBalls, double tableWidth, double tableHeight)
+        {
+            if (Disposed)
+                throw new ObjectDisposedException(nameof(MainWindowViewModel));
+            ModelLayer.Start(numberOfBalls, tableWidth, tableHeight);
+            Observer.Dispose();
+        }
+
+        public ObservableCollection<ModelIBall> Balls { get; } = new ObservableCollection<ModelIBall>();
+
         private double _tableWidth;
         public double TableWidth
         {
@@ -55,20 +70,19 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
                 RaisePropertyChanged(nameof(TableHeight));
             }
         }
-
-
-        #region public API
-        public ICommand StartCommand { get; }
-
-        public void Start(int numberOfBalls, double tableWidth, double tableHeight)
+        private bool inputEnabled = true;
+        public bool InputEnabled
         {
-            if (Disposed)
-                throw new ObjectDisposedException(nameof(MainWindowViewModel));
-            ModelLayer.Start(numberOfBalls, tableWidth, tableHeight);
-            Observer.Dispose();
+            get => inputEnabled;
+            set
+            {
+                if (inputEnabled != value)
+                {
+                    inputEnabled = value;
+                    RaisePropertyChanged(nameof(InputEnabled));
+                }
+            }
         }
-
-        public ObservableCollection<ModelIBall> Balls { get; } = new ObservableCollection<ModelIBall>();
 
         private string _ballInput;
         public string BallInput
@@ -118,8 +132,8 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
         private ModelAbstractApi ModelLayer;
         private bool Disposed = false;
         private bool inputValidation = false;
-        private double tableWidth;
-        private double tableHeight;
+
+
 
 
         private void StartMethod()
@@ -129,13 +143,16 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
 
             if (int.TryParse(BallInput, out int numberOfBalls) && numberOfBalls >= 1 && numberOfBalls <= 15)
             {
-                Start(numberOfBalls,TableWidth, TableHeight);
+                Start(numberOfBalls, TableWidth, TableHeight);
+                InputEnabled = false;
+                
             }
             else
             {
-
+                
             }
         }
+
 
         #endregion private
 
