@@ -49,32 +49,35 @@ namespace TP.ConcurrentProgramming.Data
 
         internal void Move(Vector tableSize)
         {
+            Vector correctedTableSize = new Vector(tableSize.x - 4, tableSize.y - 4);
+
             Vector velocity = (Vector)Velocity;
             Position = new Vector(Position.x + velocity.x, Position.y + velocity.y);
 
-            // Kolizja z lewą/prawą
             if (Position.x < 0)
             {
                 Position = new Vector(0, Position.y);
                 velocity = new Vector(-velocity.x, velocity.y);
             }
-            else if (Position.x + Radius*2 > tableSize.x)
+            else if (Position.x + Radius * 2 > correctedTableSize.x)
             {
-                Position = new Vector(tableSize.x - Radius*2, Position.y);
+                Position = new Vector(correctedTableSize.x - Radius * 2, Position.y);
                 velocity = new Vector(-velocity.x, velocity.y);
             }
 
-            // Kolizja z górą/dołem
             if (Position.y < 0)
             {
                 Position = new Vector(Position.x, 0);
                 velocity = new Vector(velocity.x, -velocity.y);
             }
-            else if (Position.y + Radius > tableSize.y)
+            else if (Position.y + Radius * 2 > correctedTableSize.y)
             {
-                Position = new Vector(Position.x, tableSize.y - Radius);
+                Position = new Vector(Position.x, correctedTableSize.y - Radius * 2);
                 velocity = new Vector(velocity.x, -velocity.y);
             }
+
+
+
 
             Velocity = velocity;
             RaiseNewPositionChangeNotification();

@@ -43,10 +43,12 @@ namespace TP.ConcurrentProgramming.Data
             {
 
                 double radius = 10;
+
                 Vector startingPosition = new(
-                    random.Next((int)radius, (int)(tableWidth - radius)),  // ← tutaj leci wyjątek
-                    random.Next((int)radius, (int)(tableHeight - radius))
+                  radius + random.NextDouble() * (tableWidth - radius * 2),
+                  radius + random.NextDouble() * (tableHeight - radius * 2)
                 );
+
 
                 Vector initialVelocity = new(
                     (random.NextDouble() - 0.5) * 5,
