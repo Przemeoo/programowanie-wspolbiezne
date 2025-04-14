@@ -9,6 +9,7 @@
 //  by introducing yourself and telling us what you do with this community.
 //_____________________________________________________________________________________________________________________________________
 
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -24,7 +25,8 @@ namespace TP.ConcurrentProgramming.Presentation.Model
       TopBackingField = top;
       LeftBackingField = left;
       underneathBall.NewPositionNotification += NewPositionNotification;
-    }
+      Mass = underneathBall.Mass;
+        }
 
     #region IBall
 
@@ -51,8 +53,20 @@ namespace TP.ConcurrentProgramming.Presentation.Model
         RaisePropertyChanged();
       }
     }
+    public string BallColor
+     {
+      get
+        {
+          double value = (Mass - 0.5) / 5.0;
+           value = Math.Clamp(value, 0.0, 1.0);
 
-    public double Diameter { get; init; } = 0;
+           byte b = (byte)((1 - value) * 255);
+           return $"#0000{b:X2}";
+         }
+     }
+
+        public double Diameter { get; init; } = 0;
+    public double Mass { get; }
 
     #region INotifyPropertyChanged
 

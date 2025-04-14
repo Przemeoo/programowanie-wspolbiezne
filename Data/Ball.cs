@@ -8,6 +8,8 @@
 //
 //_____________________________________________________________________________________________________________________________________
 
+using System;
+
 namespace TP.ConcurrentProgramming.Data
 {
     internal class Ball : IBall
@@ -19,7 +21,8 @@ namespace TP.ConcurrentProgramming.Data
             Position = initialPosition;
             Velocity = initialVelocity;
             Radius = radius;
-          
+            Mass = new Random().NextDouble() * 5.0 + 0.5;
+
         }
 
         #endregion ctor
@@ -35,6 +38,8 @@ namespace TP.ConcurrentProgramming.Data
         #region public
 
         public double Radius { get; }
+
+        public double Mass { get; }
 
         #endregion public
 
