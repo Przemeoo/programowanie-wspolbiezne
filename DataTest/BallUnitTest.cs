@@ -35,7 +35,7 @@ namespace TP.ConcurrentProgramming.Data.Test
                 numberOfCallBackCalled++;
             };
 
-            newInstance.Move(new Vector(100.0, 100.0)); 
+            newInstance.Move(); 
 
             Assert.AreEqual(1, numberOfCallBackCalled);
             Assert.AreEqual(initialPosition.x, curentPosition.x);

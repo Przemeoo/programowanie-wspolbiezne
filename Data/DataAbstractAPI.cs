@@ -12,53 +12,52 @@ namespace TP.ConcurrentProgramming.Data
 {
   public abstract class DataAbstractAPI : IDisposable
   {
-    #region Layer Factory
+        #region Layer Factory
 
-    public static DataAbstractAPI GetDataLayer()
+        public static DataAbstractAPI GetDataLayer()
+        {
+            return modelInstance.Value;
+        }
+
+        #endregion Layer Factory
+
+        #region public API
+
+        public abstract void Start(int numberOfBalls, Action<IVector, IBall> upperLayerHandler, double tableWidth, double tableHeight);
+
+        #endregion public API
+
+        #region IDisposable
+
+        public abstract void Dispose();
+
+        #endregion IDisposable
+
+        #region private
+
+        private static Lazy<DataAbstractAPI> modelInstance = new Lazy<DataAbstractAPI>(() => new DataImplementation());
+
+        #endregion private
+  }
+
+    public interface IVector
     {
-      return modelInstance.Value;
+        double x { get; init; }
+        double y { get; init; }
     }
 
-    #endregion Layer Factory
+    public interface IBall
+    {
+        event EventHandler<IVector> NewPositionNotification;
 
-    #region public API
+        IVector Velocity { get; set; }
 
-    public abstract void Start(int numberOfBalls, Action<IVector, IBall> upperLayerHandler, double tableWidth, double tableHeight);
+        double Mass { get; }
 
-    #endregion public API
+        double Radius { get; }
 
-    #region IDisposable
+        IVector GetPosition();
 
-    public abstract void Dispose();
-
-    #endregion IDisposable
-
-    #region private
-
-    private static Lazy<DataAbstractAPI> modelInstance = new Lazy<DataAbstractAPI>(() => new DataImplementation());
-
-    #endregion private
-  }
-
-  public interface IVector
-  {
-    /// <summary>
-    /// The X component of the vector.
-    /// </summary>
-    double x { get; init; }
-
-    /// <summary>
-    /// The y component of the vector.
-    /// </summary>
-    double y { get; init; }
-  }
-
-  public interface IBall
-  {
-    event EventHandler<IVector> NewPositionNotification;
-
-    IVector Velocity { get; set; }
-
-    double Mass { get; }
+        void MoveTo(IVector newPosition);
     }
 }

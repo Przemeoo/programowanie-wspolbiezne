@@ -46,9 +46,10 @@ namespace TP.ConcurrentProgramming.Presentation.Model.Test
     {
       public event EventHandler<IPosition>? NewPositionNotification;
 
-      public void Dispose()
+      public double Mass => 1.0;
+      public void MoveTo(Data.IVector newPosition)
       {
-        throw new NotImplementedException();
+               
       }
     }
 

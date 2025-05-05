@@ -11,31 +11,22 @@
 
 namespace TP.ConcurrentProgramming.Data
 {
-  /// <summary>
-  ///  Two dimensions immutable vector
-  /// </summary>
-  internal record Vector : IVector
-  {
-    #region IVector
+      /// <summary>
+      ///  Two dimensions immutable vector
+      /// </summary>
+      public record Vector : IVector
+      {
+            #region IVector
 
-    /// <summary>
-    /// The X component of the vector.
-    /// </summary>
-    public double x { get; init; }
-    /// <summary>
-    /// The Y component of the vector.
-    /// </summary>
-    public double y { get; init; }
+            public double x { get; init; }
+            public double y { get; init; }
 
-    #endregion IVector
+            #endregion IVector
 
-    /// <summary>
-    /// Creates new instance of <seealso cref="Vector"/> and initialize all properties
-    /// </summary>
-    public Vector(double XComponent, double YComponent)
-    {
-      x = XComponent;
-      y = YComponent;
-    }
-  }
+            public Vector(double XComponent, double YComponent)
+            {
+                x = XComponent;
+                y = YComponent;
+            }
+       }
 }

@@ -8,8 +8,11 @@
 //
 //_____________________________________________________________________________________________________________________________________
 
+using TP.ConcurrentProgramming.Data;
+
 namespace TP.ConcurrentProgramming.BusinessLogic.Test
 {
+
   [TestClass]
   public class BallUnitTest
   {
@@ -17,7 +20,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
     public void MoveTestMethod()
     {
       DataBallFixture dataBallFixture = new DataBallFixture();
-      Ball newInstance = new(dataBallFixture);
+      List<Ball> allBalls = new();
+      Ball newInstance = new(dataBallFixture, 110, 110, allBalls);
       int numberOfCallBackCalled = 0;
       newInstance.NewPositionNotification += (sender, position) => { Assert.IsNotNull(sender); Assert.IsNotNull(position); numberOfCallBackCalled++; };
       dataBallFixture.Move();
@@ -31,11 +35,20 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
       public Data.IVector Velocity { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
       public event EventHandler<Data.IVector>? NewPositionNotification;
-
-      internal void Move()
+      public double Mass => 1.0;
+      public double Radius => 1.0;
+      public void MoveTo(Data.IVector newPosition)
       {
-        NewPositionNotification?.Invoke(this, new VectorFixture(0.0, 0.0));
       }
+        public Data.IVector GetPosition()
+        {
+            return new VectorFixture(0.0, 0.0); 
+        }
+
+        internal void Move()
+        {
+            NewPositionNotification?.Invoke(this, new VectorFixture(10.0, 10.0));
+        }
     }
 
     private class VectorFixture : Data.IVector

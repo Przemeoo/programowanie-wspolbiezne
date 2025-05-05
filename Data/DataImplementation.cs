@@ -17,7 +17,8 @@ namespace TP.ConcurrentProgramming.Data
 
         public DataImplementation()
         {
-            MoveTimer = new Timer(Move, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(20));
+            _cancellationTokenSource = new CancellationTokenSource();
+            StartMovingAsync(_cancellationTokenSource.Token);
         }
 
         #endregion ctor
@@ -28,7 +29,6 @@ namespace TP.ConcurrentProgramming.Data
 
         public override void Start(int numberOfBalls, Action<IVector, IBall> upperLayerHandler, double tableWidth, double tableHeight)
         {
-
             if (Disposed)
                 throw new ObjectDisposedException(nameof(DataImplementation));
             if (upperLayerHandler == null)
@@ -40,26 +40,57 @@ namespace TP.ConcurrentProgramming.Data
 
             for (int i = 0; i < numberOfBalls; i++)
             {
-
                 double radius = 12;
+                Vector startingPosition;
 
-                Vector startingPosition = new(
-                  radius + random.NextDouble() * (tableWidth - radius * 2),
-                  radius + random.NextDouble() * (tableHeight - radius * 2)
-                );
+                bool validPosition;
+                int maxAttempts = 100; 
+                do
+                {
+                    startingPosition = new Vector(
+                        radius + random.NextDouble() * (tableWidth - radius * 2),
+                        radius + random.NextDouble() * (tableHeight - radius * 2)
+                    );
+                    validPosition = true;
 
+                    foreach (var existingBall in BallsList)
+                    {
+                        double distance = Math.Sqrt(
+                            Math.Pow(startingPosition.x + radius - (existingBall.GetPosition().x + existingBall.Radius), 2) +
+                            Math.Pow(startingPosition.y + radius - (existingBall.GetPosition().y + existingBall.Radius), 2)
+                        );
+                        if (distance < (radius + existingBall.Radius))
+                        {
+                            validPosition = false;
+                            break;
+                        }
+                    }
+                    maxAttempts--;
+                } while (!validPosition && maxAttempts > 0);
 
-                Vector initialVelocity = new(
-                    (random.NextDouble() - 0.5) * 5,
-                    (random.NextDouble() - 0.5) * 5
-                );
+                if (!validPosition)
+                {
+                    throw new InvalidOperationException("Nie można znaleźć wolnej pozycji dla kulki po maksymalnej liczbie prób.");
+                }
+
+                double minSpeed = 0.2;
+                double vx, vy;
+                do
+                {
+                    vx = (random.NextDouble() - 0.5) * 2;
+                } while (Math.Abs(vx) < minSpeed);
+                do
+                {
+                    vy = (random.NextDouble() - 0.5) * 2;
+                } while (Math.Abs(vy) < minSpeed);
+
+                Vector initialVelocity = new Vector(vx, vy);
 
                 Ball newBall = new(startingPosition, initialVelocity, tableWidth, tableHeight, radius);
                 upperLayerHandler(startingPosition, newBall);
                 BallsList.Add(newBall);
             }
         }
-
 
         #endregion DataAbstractAPI
 
@@ -71,7 +102,8 @@ namespace TP.ConcurrentProgramming.Data
             {
                 if (disposing)
                 {
-                    MoveTimer.Dispose();
+                    _cancellationTokenSource?.Cancel();
+                    _cancellationTokenSource?.Dispose();
                     BallsList.Clear();
                 }
                 Disposed = true;
@@ -91,21 +123,36 @@ namespace TP.ConcurrentProgramming.Data
         #region private
 
         private bool Disposed = false;
-
-        private readonly Timer MoveTimer;
-        private List<Ball> BallsList = new();
-
+        private readonly List<Ball> BallsList = new();
+        private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly object _lock = new();
-        private void Move(object? state)
+
+        private async void StartMovingAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    await MoveAsync();
+                    await Task.Delay(20, cancellationToken); 
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        private async Task MoveAsync()
         {
             if (TableSize == null)
                 return;
+
             lock (_lock)
             {
                 var ballCopy = BallsList.ToList();
                 foreach (Ball ball in ballCopy)
                 {
-                    ball.Move(TableSize);
+                    ball.Move();
                 }
             }
         }

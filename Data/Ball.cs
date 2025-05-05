@@ -22,7 +22,6 @@ namespace TP.ConcurrentProgramming.Data
             Velocity = initialVelocity;
             Radius = radius;
             Mass = new Random().NextDouble() * 5.0 + 0.5;
-
         }
 
         #endregion ctor
@@ -33,15 +32,22 @@ namespace TP.ConcurrentProgramming.Data
 
         public IVector Velocity { get; set; }
 
-        #endregion IBall
-
-        #region public
-
         public double Radius { get; }
 
         public double Mass { get; }
 
-        #endregion public
+        public IVector GetPosition()
+        {
+            return Position;
+        }
+
+        public void MoveTo(IVector newPosition)
+        {
+            Position = (Vector)newPosition;
+            RaiseNewPositionChangeNotification();
+        }
+
+        #endregion IBall
 
         #region private
 
@@ -52,42 +58,12 @@ namespace TP.ConcurrentProgramming.Data
             NewPositionNotification?.Invoke(this, Position);
         }
 
-        internal void Move(Vector tableSize)
+        internal void Move()
         {
-            Vector correctedTableSize = new Vector(tableSize.x - 4, tableSize.y - 4);
-
             Vector velocity = (Vector)Velocity;
             Position = new Vector(Position.x + velocity.x, Position.y + velocity.y);
-
-            if (Position.x < 0)
-            {
-                Position = new Vector(0, Position.y);
-                velocity = new Vector(-velocity.x, velocity.y);
-            }
-            else if (Position.x + Radius * 2 > correctedTableSize.x)
-            {
-                Position = new Vector(correctedTableSize.x - Radius * 2, Position.y);
-                velocity = new Vector(-velocity.x, velocity.y);
-            }
-
-            if (Position.y < 0)
-            {
-                Position = new Vector(Position.x, 0);
-                velocity = new Vector(velocity.x, -velocity.y);
-            }
-            else if (Position.y + Radius * 2 > correctedTableSize.y)
-            {
-                Position = new Vector(Position.x, correctedTableSize.y - Radius * 2);
-                velocity = new Vector(velocity.x, -velocity.y);
-            }
-
-
-
-
-            Velocity = velocity;
             RaiseNewPositionChangeNotification();
         }
-
 
         #endregion private
     }
