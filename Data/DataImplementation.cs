@@ -37,10 +37,10 @@ namespace TP.ConcurrentProgramming.Data
             TableSize = new Vector(tableWidth, tableHeight);
 
             Random random = new Random();
+            double radius =12;
 
             for (int i = 0; i < numberOfBalls; i++)
             {
-                double radius = 12;
                 Vector startingPosition;
 
                 bool validPosition;
@@ -56,8 +56,8 @@ namespace TP.ConcurrentProgramming.Data
                     foreach (var existingBall in BallsList)
                     {
                         double distance = Math.Sqrt(
-                            Math.Pow(startingPosition.x + radius - (existingBall.GetPosition().x + existingBall.Radius), 2) +
-                            Math.Pow(startingPosition.y + radius - (existingBall.GetPosition().y + existingBall.Radius), 2)
+                            Math.Pow(startingPosition.x + radius - (existingBall.Position.x + existingBall.Radius), 2) +
+                            Math.Pow(startingPosition.y + radius - (existingBall.Position.y + existingBall.Radius), 2)
                         );
                         if (distance < (radius + existingBall.Radius))
                         {
@@ -73,18 +73,7 @@ namespace TP.ConcurrentProgramming.Data
                     throw new InvalidOperationException("Nie można znaleźć wolnej pozycji dla kulki po maksymalnej liczbie prób.");
                 }
 
-                double minSpeed = 0.2;
-                double vx, vy;
-                do
-                {
-                    vx = (random.NextDouble() - 0.5) * 2;
-                } while (Math.Abs(vx) < minSpeed);
-                do
-                {
-                    vy = (random.NextDouble() - 0.5) * 2;
-                } while (Math.Abs(vy) < minSpeed);
-
-                Vector initialVelocity = new Vector(vx, vy);
+                Vector initialVelocity = new Vector((random.NextDouble() - 0.5) * 5, (random.NextDouble() - 0.5));
 
                 Ball newBall = new(startingPosition, initialVelocity, tableWidth, tableHeight, radius);
                 upperLayerHandler(startingPosition, newBall);

@@ -17,31 +17,28 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 {
     internal class Ball : IBall
     {
-        public Ball(Data.IBall ball, double tableWidth, double tableHeight, List<BL.Ball> allBalls) { dataBall = ball; TableSize = new Data.Vector(tableWidth, tableHeight); dataBall.NewPositionNotification += HandlePositionChange; AllBalls = allBalls; }
+        public Ball(Data.IBall ball) 
+        {   dataBall = ball;
+            dataBall.NewPositionNotification += RaisePositionChangeEvent;
+        }
         #region IBall
 
         public event EventHandler<IPosition>? NewPositionNotification;
 
         public double Mass => dataBall.Mass;
 
-        public void MoveTo(Data.IVector newPosition)
-        {
-            dataBall.MoveTo(newPosition);
-        }
+        public double Radius => dataBall.Radius;
+
+
 
         #endregion IBall
 
-        #region private
-
-        private readonly Data.IBall dataBall;
-        private readonly Data.IVector TableSize;
-        private readonly List<BL.Ball> AllBalls;
-
-        private void HandlePositionChange(object? sender, Data.IVector position)
+        #region internal
+        internal void WallCollision()
         {
-            Data.Vector correctedTableSize = new Data.Vector(TableSize.x - 4, TableSize.y - 4);
+            Data.Vector correctedTableSize = new Data.Vector(dataBall.TableSize.x - 4, dataBall.TableSize.y - 4);
             Data.Vector velocity = (Data.Vector)dataBall.Velocity;
-            Data.Vector newPosition = new Data.Vector(position.x, position.y);
+            Data.Vector newPosition = new Data.Vector(dataBall.Position.x, dataBall.Position.y);
 
             if (newPosition.x < 0)
             {
@@ -65,66 +62,88 @@ namespace TP.ConcurrentProgramming.BusinessLogic
                 velocity = new Data.Vector(velocity.x, -velocity.y);
             }
 
-            lock (AllBalls) 
-            {
-                foreach (var other in AllBalls)
-                {
-                    if (other == this) continue;
 
-                    Data.IVector otherPosition = other.dataBall.GetPosition();
-                    double distance = Math.Sqrt(
-                        Math.Pow(newPosition.x + dataBall.Radius - (otherPosition.x + other.dataBall.Radius), 2) +
-                        Math.Pow(newPosition.y + dataBall.Radius - (otherPosition.y + other.dataBall.Radius), 2)
+            dataBall.Position = newPosition;
+            dataBall.Velocity = velocity;
+
+
+        }
+
+        internal void BallsCollision(Ball otherBall)
+        {
+            if (otherBall == this)
+                return;
+
+            Data.Vector newPosition = new Data.Vector(dataBall.Position.x, dataBall.Position.y);
+            Data.IVector otherPosition = otherBall.dataBall.Position;
+            double distance = Math.Sqrt(
+                Math.Pow(newPosition.x + dataBall.Radius - (otherPosition.x + otherBall.dataBall.Radius), 2) +
+                Math.Pow(newPosition.y + dataBall.Radius - (otherPosition.y + otherBall.dataBall.Radius), 2)
+            );
+
+            if (distance < (dataBall.Radius + otherBall.dataBall.Radius))
+            {
+                Data.Vector velocity = (Data.Vector)dataBall.Velocity;
+                Data.Vector otherVelocity = (Data.Vector)otherBall.dataBall.Velocity;
+                double m1 = dataBall.Mass;
+                double m2 = otherBall.dataBall.Mass;
+
+                Data.Vector deltaPos = new Data.Vector(
+                    (newPosition.x + dataBall.Radius) - (otherPosition.x + otherBall.dataBall.Radius),
+                    (newPosition.y + dataBall.Radius) - (otherPosition.y + otherBall.dataBall.Radius)
+                );
+                Data.Vector deltaVel = new Data.Vector(velocity.x - otherVelocity.x, velocity.y - otherVelocity.y);
+
+                double dot = deltaVel.x * deltaPos.x + deltaVel.y * deltaPos.y;
+                double mag = deltaPos.x * deltaPos.x + deltaPos.y * deltaPos.y;
+
+                if (mag == 0 || dot >= 0)
+                    return;
+
+                double factor = 2 * dot / (mag * (m1 + m2));
+
+                velocity = new Data.Vector(
+                    velocity.x - factor * m2 * deltaPos.x,
+                    velocity.y - factor * m2 * deltaPos.y
+                );
+                otherBall.dataBall.Velocity = new Data.Vector(
+                    otherVelocity.x + factor * m1 * deltaPos.x,
+                    otherVelocity.y + factor * m1 * deltaPos.y
+                );
+
+                double overlap = (dataBall.Radius + otherBall.dataBall.Radius) - distance;
+                if (overlap > 0)
+                {
+                    double correction = overlap / 2; 
+                    newPosition = new Data.Vector(
+                        newPosition.x + (deltaPos.x / distance) * correction,
+                        newPosition.y + (deltaPos.y / distance) * correction
+                    );
+                    Data.Vector otherNewPosition = new Data.Vector(
+                        otherPosition.x - (deltaPos.x / distance) * correction,
+                        otherPosition.y - (deltaPos.y / distance) * correction
                     );
 
-                    if (distance < (dataBall.Radius + other.dataBall.Radius))
-                    {
-                        // Sprężyste zderzenie
-                        Data.Vector otherVelocity = (Data.Vector)other.dataBall.Velocity;
-                        double m1 = dataBall.Mass;
-                        double m2 = other.dataBall.Mass;
-
-                        // Wektory różnicy pozycji i prędkości
-                        Data.Vector deltaPos = new Data.Vector(
-                            (newPosition.x + dataBall.Radius) - (otherPosition.x + other.dataBall.Radius),
-                            (newPosition.y + dataBall.Radius) - (otherPosition.y + other.dataBall.Radius)
-                        );
-                        Data.Vector deltaVel = new Data.Vector(velocity.x - otherVelocity.x, velocity.y - otherVelocity.y);
-
-                        // Iloczyn skalarny dla reakcji zderzenia
-                        double dot = deltaVel.x * deltaPos.x + deltaVel.y * deltaPos.y;
-                        double mag = deltaPos.x * deltaPos.x + deltaPos.y * deltaPos.y;
-
-                        if (mag == 0 || dot >= 0) continue; // Unikanie dzielenia przez zero lub zderzeń nieistniejących
-
-                        double factor = 2 * dot / (mag * (m1 + m2));
-
-                        velocity = new Data.Vector(
-                            velocity.x - factor * m2 * deltaPos.x,
-                            velocity.y - factor * m2 * deltaPos.y
-                        );
-                        other.dataBall.Velocity = new Data.Vector(
-                            otherVelocity.x + factor * m1 * deltaPos.x,
-                            otherVelocity.y + factor * m1 * deltaPos.y
-                        );
-
-                        double overlap = (dataBall.Radius + other.dataBall.Radius) - distance;
-                        double correction = overlap / (2 * distance);
-                        newPosition = new Data.Vector(
-                            newPosition.x + correction * deltaPos.x,
-                            newPosition.y + correction * deltaPos.y
-                        );
-                        Data.Vector otherNewPosition = new Data.Vector(
-                            otherPosition.x - correction * deltaPos.x,
-                            otherPosition.y - correction * deltaPos.y
-                        );
-                        other.dataBall.MoveTo(otherNewPosition);
-                    }
+                    dataBall.Position = newPosition;
+                    otherBall.dataBall.Position = otherNewPosition;
                 }
-            }
 
-            dataBall.Velocity = velocity;
-            NewPositionNotification?.Invoke(this, new Position(newPosition.x, newPosition.y));
+                dataBall.Velocity = velocity;
+
+            }
+        }
+
+        #endregion internal
+
+        #region private
+
+        private readonly Data.IBall dataBall;
+
+        
+
+        private void RaisePositionChangeEvent(object? sender, Data.IVector e)
+        {
+            NewPositionNotification?.Invoke(this, new Position(e.x, e.y));
         }
 
         #endregion private

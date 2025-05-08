@@ -57,6 +57,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
         double Mass { get; }
 
-        void MoveTo(Data.IVector newPosition);
+        double Radius { get; }
+
     }
 }

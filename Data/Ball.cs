@@ -20,6 +20,7 @@ namespace TP.ConcurrentProgramming.Data
         {
             Position = initialPosition;
             Velocity = initialVelocity;
+            TableSize = new Vector(tableWidth, tableHeight);
             Radius = radius;
             Mass = new Random().NextDouble() * 5.0 + 0.5;
         }
@@ -36,22 +37,15 @@ namespace TP.ConcurrentProgramming.Data
 
         public double Mass { get; }
 
-        public IVector GetPosition()
-        {
-            return Position;
-        }
+        public IVector Position { get; set; }
 
-        public void MoveTo(IVector newPosition)
-        {
-            Position = (Vector)newPosition;
-            RaiseNewPositionChangeNotification();
-        }
+        public IVector TableSize { get; }
+
 
         #endregion IBall
 
         #region private
 
-        private Vector Position;
 
         private void RaiseNewPositionChangeNotification()
         {
@@ -61,7 +55,8 @@ namespace TP.ConcurrentProgramming.Data
         internal void Move()
         {
             Vector velocity = (Vector)Velocity;
-            Position = new Vector(Position.x + velocity.x, Position.y + velocity.y);
+            Vector position = (Vector)Position; 
+            Position = new Vector(position.x + velocity.x, position.y + velocity.y);
             RaiseNewPositionChangeNotification();
         }
 

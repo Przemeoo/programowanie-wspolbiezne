@@ -56,8 +56,8 @@ namespace TP.ConcurrentProgramming.Data
 
         double Radius { get; }
 
-        IVector GetPosition();
+        IVector Position { get; set; }
 
-        void MoveTo(IVector newPosition);
+        IVector TableSize { get; }
     }
 }

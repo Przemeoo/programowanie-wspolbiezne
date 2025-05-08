@@ -1,20 +1,11 @@
-﻿//____________________________________________________________________________________________________________________________________
-//
-//  Copyright (C) 2024, Mariusz Postol LODZ POLAND.
-//
-//  To be in touch join the community by pressing the `Watch` button and get started commenting using the discussion panel at
-//
-//  https://github.com/mpostol/TP/discussions/182
-//
-//_____________________________________________________________________________________________________________________________________
-
+﻿
 using System.Diagnostics;
 using UnderneathLayerAPI = TP.ConcurrentProgramming.Data.DataAbstractAPI;
 
 namespace TP.ConcurrentProgramming.BusinessLogic
 {
-  internal class BusinessLogicImplementation : BusinessLogicAbstractAPI
-  {
+    internal class BusinessLogicImplementation : BusinessLogicAbstractAPI
+    {
         #region ctor
 
         public BusinessLogicImplementation() : this(null)
@@ -31,6 +22,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         {
             if (Disposed)
                 throw new ObjectDisposedException(nameof(BusinessLogicImplementation));
+            Stop(); 
             layerBellow.Dispose();
             Disposed = true;
         }
@@ -45,10 +37,22 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             BallsList.Clear();
             layerBellow.Start(numberOfBalls, (startingPosition, databall) =>
             {
-                var ball = new Ball(databall, tableWidth, tableHeight, BallsList);
+                var ball = new Ball(databall);
                 BallsList.Add(ball);
                 upperLayerHandler(new Position(startingPosition.x, startingPosition.y), ball);
             }, tableWidth, tableHeight);
+
+
+            StartSimulation();
+        }
+
+        public void Stop()
+        {
+            cts?.Cancel();
+            simulationTask?.Wait(); 
+            cts?.Dispose();
+            cts = null;
+            simulationTask = null;
         }
 
         #region private
@@ -56,6 +60,39 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         private bool Disposed = false;
         private readonly UnderneathLayerAPI layerBellow;
         private readonly List<Ball> BallsList = new();
+        private CancellationTokenSource cts;
+        private Task simulationTask;
+
+        private void StartSimulation()
+        {
+            cts = new CancellationTokenSource();
+            simulationTask = Task.Run(() => RunSimulation(cts.Token), cts.Token);
+        }
+
+        private void RunSimulation(CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                lock (BallsList) 
+                {
+
+                    foreach (var ball in BallsList)
+                    {
+                        ball.WallCollision();
+                    }
+
+                    for (int i = 0; i < BallsList.Count; i++)
+                    {
+                        for (int j = i + 1; j < BallsList.Count; j++)
+                        {
+                            BallsList[i].BallsCollision(BallsList[j]);
+                        }
+                    }
+                }
+
+                Thread.Sleep(10); 
+            }
+        }
 
         #endregion private
 

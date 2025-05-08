@@ -26,6 +26,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model
       LeftBackingField = left;
       underneathBall.NewPositionNotification += NewPositionNotification;
       Mass = underneathBall.Mass;
+      Radius = underneathBall.Radius;
         }
 
     #region IBall
@@ -65,8 +66,9 @@ namespace TP.ConcurrentProgramming.Presentation.Model
          }
      }
 
-        public double Diameter { get; init; } = 0;
+    public double Diameter { get; init; } = 0;
     public double Mass { get; }
+    public double Radius { get; }
 
     #region INotifyPropertyChanged
 
