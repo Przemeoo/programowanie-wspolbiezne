@@ -37,7 +37,7 @@ namespace TP.ConcurrentProgramming.Data
             TableSize = new Vector(tableWidth, tableHeight);
 
             Random random = new Random();
-            double radius =12;
+            double radius = 0.03 * tableHeight;
 
             for (int i = 0; i < numberOfBalls; i++)
             {
