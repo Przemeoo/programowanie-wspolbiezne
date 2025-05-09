@@ -8,12 +8,7 @@
 //
 //_____________________________________________________________________________________________________________________________________
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using UnderneathLayerAPI = TP.ConcurrentProgramming.Data.DataAbstractAPI;
 
 namespace TP.ConcurrentProgramming.BusinessLogic
@@ -47,6 +42,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
                 throw new ObjectDisposedException(nameof(BusinessLogicImplementation));
             if (upperLayerHandler == null)
                 throw new ArgumentNullException(nameof(upperLayerHandler));
+
             Stop();
 
             BallsList.Clear();
@@ -70,7 +66,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             }
             catch (AggregateException ex) when (ex.InnerExceptions.All(e => e is TaskCanceledException))
             {
-                // Ignore cancellation exceptions
+
             }
             cts?.Dispose();
             cts = null;
@@ -93,7 +89,6 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
             foreach (var ball in BallsList)
             {
-                // Użyj Task.Factory.StartNew z LongRunning, aby zasugerować dedykowany wątek
                 ballTasks.Add(Task.Factory.StartNew(
                     () => RunBallSimulation(ball, cts.Token).GetAwaiter().GetResult(),
                     cts.Token,
@@ -127,8 +122,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
                 await Task.Delay(10, cancellationToken);
             }
         }
-       
-
+      
         #endregion private
 
         #region TestingInfrastructure
