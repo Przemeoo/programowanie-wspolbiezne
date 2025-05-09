@@ -35,11 +35,14 @@ namespace TP.ConcurrentProgramming.PresentationView
         /// </summary>
         /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
         protected override void OnClosed(EventArgs e)
-    {
-      if (DataContext is MainWindowViewModel viewModel)
-        viewModel.Dispose();
-      base.OnClosed(e);
-    }
+        {
+            if (DataContext is MainWindowViewModel viewModel)
+            {
+                viewModel.Dispose();
+            }
+            base.OnClosed(e);
+            Application.Current.Shutdown(); 
+        }
 
-  }
+    }
 }

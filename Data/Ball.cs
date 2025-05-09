@@ -15,6 +15,7 @@ namespace TP.ConcurrentProgramming.Data
     public class Ball : IBall
     {
         #region ctor
+        private static readonly Random random = new Random();
 
         public Ball(Vector initialPosition, Vector initialVelocity, double tableWidth, double tableHeight, double radius)
         {
@@ -22,7 +23,7 @@ namespace TP.ConcurrentProgramming.Data
             Velocity = initialVelocity;
             TableSize = new Vector(tableWidth, tableHeight);
             Radius = radius;
-            Mass = new Random().NextDouble() * 5.0 + 0.5;
+            Mass = random.NextDouble() * 5.0 + 0.5;
         }
 
         #endregion ctor

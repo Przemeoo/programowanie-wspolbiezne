@@ -18,7 +18,6 @@ namespace TP.ConcurrentProgramming.Data
         public DataImplementation()
         {
             _cancellationTokenSource = new CancellationTokenSource();
-            StartMovingAsync(_cancellationTokenSource.Token);
         }
 
         #endregion ctor
@@ -73,11 +72,17 @@ namespace TP.ConcurrentProgramming.Data
                     throw new InvalidOperationException("Nie można znaleźć wolnej pozycji dla kulki po maksymalnej liczbie prób.");
                 }
 
-                Vector initialVelocity = new Vector((random.NextDouble() - 0.5) * 2, (random.NextDouble() - 0.5) * 2);
+                Vector initialVelocity = new Vector((random.NextDouble() - 0.5) * 5, (random.NextDouble() - 0.5) * 5);
 
                 Ball newBall = new(startingPosition, initialVelocity, tableWidth, tableHeight, radius);
                 upperLayerHandler(startingPosition, newBall);
                 BallsList.Add(newBall);
+
+                _moveTasks.Add(Task.Factory.StartNew(
+                    () => MoveBallAsync(newBall, _cancellationTokenSource.Token).GetAwaiter().GetResult(),
+                    _cancellationTokenSource.Token,
+                    TaskCreationOptions.LongRunning,
+                    TaskScheduler.Default));
             }
         }
 
@@ -92,18 +97,25 @@ namespace TP.ConcurrentProgramming.Data
                 if (disposing)
                 {
                     _cancellationTokenSource?.Cancel();
+                    try
+                    {
+                        Task.WhenAll(_moveTasks).Wait(); 
+                    }
+                    catch (AggregateException ex) when (ex.InnerExceptions.All(e => e is TaskCanceledException))
+                    {
+
+                    }
                     _cancellationTokenSource?.Dispose();
                     BallsList.Clear();
+                    _moveTasks.Clear();
                 }
                 Disposed = true;
             }
-            else
-                throw new ObjectDisposedException(nameof(DataImplementation));
         }
 
         public override void Dispose()
         {
-            Dispose(disposing: true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -114,35 +126,27 @@ namespace TP.ConcurrentProgramming.Data
         private bool Disposed = false;
         private readonly List<Ball> BallsList = new();
         private readonly CancellationTokenSource _cancellationTokenSource;
+        private readonly List<Task> _moveTasks = new();
         private readonly object _lock = new();
 
-        private async void StartMovingAsync(CancellationToken cancellationToken)
+        private async Task MoveBallAsync(Ball ball, CancellationToken cancellationToken)
         {
             try
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    await MoveAsync();
-                    await Task.Delay(20, cancellationToken);
+                    lock (_lock) 
+                    {
+                        ball.Move();
+                    }
+                    await Task.Delay(30, cancellationToken);
                 }
             }
             catch (OperationCanceledException)
             {
             }
-        }
-
-        private async Task MoveAsync()
-        {
-            if (TableSize == null)
-                return;
-
-            lock (_lock)
+            catch (Exception ex)
             {
-                var ballCopy = BallsList.ToList();
-                foreach (Ball ball in ballCopy)
-                {
-                    ball.Move();
-                }
             }
         }
 

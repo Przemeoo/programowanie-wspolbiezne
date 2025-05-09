@@ -30,7 +30,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         public override void Dispose()
         {
             if (Disposed)
-                throw new ObjectDisposedException(nameof(BusinessLogicImplementation));
+                return;
             Stop();
             layerBellow.Dispose();
             Disposed = true;
@@ -58,16 +58,24 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
         public void Stop()
         {
-            cts?.Cancel();
+            if (cts == null)
+                return;
+
+            cts.Cancel();
             try
             {
                 if (collisionTasks != null)
+                {
                     Task.WhenAll(collisionTasks).Wait();
+                }
             }
             catch (AggregateException ex) when (ex.InnerExceptions.All(e => e is TaskCanceledException))
             {
             }
-            cts?.Dispose();
+            catch (Exception ex)
+            {
+            }
+            cts.Dispose();
             cts = null;
             collisionTasks = null;
         }
@@ -86,33 +94,37 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             cts = new CancellationTokenSource();
             collisionTasks = new List<Task>();
 
-            collisionTasks.Add(Task.Factory.StartNew(
-                () => RunCollisionDetection(cts.Token).GetAwaiter().GetResult(),
-                cts.Token,
-                TaskCreationOptions.LongRunning,
-                TaskScheduler.Default));
+            foreach (var ball in BallsList)
+            {
+                collisionTasks.Add(Task.Run(
+                    () => CheckCollisionsForBallAsync(ball, cts.Token),
+                    cts.Token)); 
+            }
         }
 
-        private async Task RunCollisionDetection(CancellationToken cancellationToken)
+        private async Task CheckCollisionsForBallAsync(Ball ball, CancellationToken cancellationToken)
         {
-            while (!cancellationToken.IsCancellationRequested)
+            try
             {
-                lock (collisionLock)
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    foreach (var ball in BallsList)
+                    lock (collisionLock)
                     {
                         ball.WallCollision();
-                    }
-
-                    for (int i = 0; i < BallsList.Count; i++)
-                    {
-                        for (int j = i + 1; j < BallsList.Count; j++)
+                        foreach (var otherBall in BallsList)
                         {
-                            BallsList[i].BallsCollision(BallsList[j]);
+                            if (otherBall != ball)
+                                ball.BallsCollision(otherBall);
                         }
                     }
+                    await Task.Delay(20, cancellationToken); 
                 }
-                await Task.Delay(10);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
             }
         }
 
