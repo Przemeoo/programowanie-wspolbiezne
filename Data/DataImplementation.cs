@@ -18,6 +18,7 @@ namespace TP.ConcurrentProgramming.Data
         public DataImplementation()
         {
             _cancellationTokenSource = new CancellationTokenSource();
+            StartMovingAsync(_cancellationTokenSource.Token);
         }
 
         #endregion ctor
@@ -114,6 +115,36 @@ namespace TP.ConcurrentProgramming.Data
         private readonly List<Ball> BallsList = new();
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly object _lock = new();
+
+        private async void StartMovingAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    await MoveAsync();
+                    await Task.Delay(20, cancellationToken);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        private async Task MoveAsync()
+        {
+            if (TableSize == null)
+                return;
+
+            lock (_lock)
+            {
+                var ballCopy = BallsList.ToList();
+                foreach (Ball ball in ballCopy)
+                {
+                    ball.Move();
+                }
+            }
+        }
 
         #endregion private
 

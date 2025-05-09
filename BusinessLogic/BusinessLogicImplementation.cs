@@ -53,7 +53,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
                 upperLayerHandler(new Position(startingPosition.x, startingPosition.y), ball);
             }, tableWidth, tableHeight);
 
-            StartSimulation();
+            StartCollisionDetection();
         }
 
         public void Stop()
@@ -61,16 +61,15 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             cts?.Cancel();
             try
             {
-                if (ballTasks != null)
-                    Task.WhenAll(ballTasks).Wait();
+                if (collisionTasks != null)
+                    Task.WhenAll(collisionTasks).Wait();
             }
             catch (AggregateException ex) when (ex.InnerExceptions.All(e => e is TaskCanceledException))
             {
-
             }
             cts?.Dispose();
             cts = null;
-            ballTasks = null;
+            collisionTasks = null;
         }
 
         #region private
@@ -79,50 +78,44 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         private readonly UnderneathLayerAPI layerBellow;
         private readonly List<Ball> BallsList = new();
         private CancellationTokenSource cts;
-        private List<Task> ballTasks;
+        private List<Task> collisionTasks;
         private readonly object collisionLock = new();
 
-        private void StartSimulation()
+        private void StartCollisionDetection()
         {
             cts = new CancellationTokenSource();
-            ballTasks = new List<Task>();
+            collisionTasks = new List<Task>();
 
-            foreach (var ball in BallsList)
-            {
-                ballTasks.Add(Task.Factory.StartNew(
-                    () => RunBallSimulation(ball, cts.Token).GetAwaiter().GetResult(),
-                    cts.Token,
-                    TaskCreationOptions.LongRunning,
-                    TaskScheduler.Default));
-            }
+            collisionTasks.Add(Task.Factory.StartNew(
+                () => RunCollisionDetection(cts.Token).GetAwaiter().GetResult(),
+                cts.Token,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default));
         }
 
-        private async Task RunBallSimulation(Ball ball, CancellationToken cancellationToken)
+        private async Task RunCollisionDetection(CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
             {
                 lock (collisionLock)
                 {
-                    ball.WallCollision();
-                }
-
-                lock (collisionLock)
-                {
-                    foreach (var otherBall in BallsList)
+                    foreach (var ball in BallsList)
                     {
-                        if (otherBall != ball)
+                        ball.WallCollision();
+                    }
+
+                    for (int i = 0; i < BallsList.Count; i++)
+                    {
+                        for (int j = i + 1; j < BallsList.Count; j++)
                         {
-                            ball.BallsCollision(otherBall);
+                            BallsList[i].BallsCollision(BallsList[j]);
                         }
                     }
                 }
-
-                 ((Data.Ball)ball.dataBall).Move();
-
-                await Task.Delay(10, cancellationToken);
+                await Task.Delay(10);
             }
         }
-      
+
         #endregion private
 
         #region TestingInfrastructure
