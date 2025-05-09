@@ -1,12 +1,5 @@
-﻿//____________________________________________________________________________________________________________________________________
-//
-//  Copyright (C) 2024, Mariusz Postol LODZ POLAND.
-//
-//  To be in touch join the community by pressing the `Watch` button and get started commenting using the discussion panel at
-//
-//  https://github.com/mpostol/TP/discussions/182
-//
-//_____________________________________________________________________________________________________________________________________
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace TP.ConcurrentProgramming.Data
@@ -18,7 +11,6 @@ namespace TP.ConcurrentProgramming.Data
         public DataImplementation()
         {
             _cancellationTokenSource = new CancellationTokenSource();
-            StartMovingAsync(_cancellationTokenSource.Token);
         }
 
         #endregion ctor
@@ -44,7 +36,7 @@ namespace TP.ConcurrentProgramming.Data
                 Vector startingPosition;
 
                 bool validPosition;
-                int maxAttempts = 100; 
+                int maxAttempts = 100;
                 do
                 {
                     startingPosition = new Vector(
@@ -115,36 +107,6 @@ namespace TP.ConcurrentProgramming.Data
         private readonly List<Ball> BallsList = new();
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly object _lock = new();
-
-        private async void StartMovingAsync(CancellationToken cancellationToken)
-        {
-            try
-            {
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    await MoveAsync();
-                    await Task.Delay(20, cancellationToken); 
-                }
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }
-
-        private async Task MoveAsync()
-        {
-            if (TableSize == null)
-                return;
-
-            lock (_lock)
-            {
-                var ballCopy = BallsList.ToList();
-                foreach (Ball ball in ballCopy)
-                {
-                    ball.Move();
-                }
-            }
-        }
 
         #endregion private
 

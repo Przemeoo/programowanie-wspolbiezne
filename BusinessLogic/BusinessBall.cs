@@ -137,7 +137,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
         #region private
 
-        private readonly Data.IBall dataBall;
+        public readonly Data.IBall dataBall;
 
         
 

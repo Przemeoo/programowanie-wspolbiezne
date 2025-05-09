@@ -8,7 +8,12 @@
 //
 //_____________________________________________________________________________________________________________________________________
 
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using UnderneathLayerAPI = TP.ConcurrentProgramming.Data.DataAbstractAPI;
 
 namespace TP.ConcurrentProgramming.BusinessLogic
@@ -31,7 +36,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         {
             if (Disposed)
                 throw new ObjectDisposedException(nameof(BusinessLogicImplementation));
-            Stop(); 
+            Stop();
             layerBellow.Dispose();
             Disposed = true;
         }
@@ -42,6 +47,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
                 throw new ObjectDisposedException(nameof(BusinessLogicImplementation));
             if (upperLayerHandler == null)
                 throw new ArgumentNullException(nameof(upperLayerHandler));
+            Stop();
 
             BallsList.Clear();
             layerBellow.Start(numberOfBalls, (startingPosition, databall) =>
@@ -51,7 +57,6 @@ namespace TP.ConcurrentProgramming.BusinessLogic
                 upperLayerHandler(new Position(startingPosition.x, startingPosition.y), ball);
             }, tableWidth, tableHeight);
 
-
             StartSimulation();
         }
 
@@ -60,15 +65,16 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             cts?.Cancel();
             try
             {
-                simulationTask?.Wait();
+                if (ballTasks != null)
+                    Task.WhenAll(ballTasks).Wait();
             }
             catch (AggregateException ex) when (ex.InnerExceptions.All(e => e is TaskCanceledException))
             {
-       
+                // Ignore cancellation exceptions
             }
             cts?.Dispose();
             cts = null;
-            simulationTask = null;
+            ballTasks = null;
         }
 
         #region private
@@ -77,38 +83,51 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         private readonly UnderneathLayerAPI layerBellow;
         private readonly List<Ball> BallsList = new();
         private CancellationTokenSource cts;
-        private Task simulationTask;
+        private List<Task> ballTasks;
+        private readonly object collisionLock = new();
 
         private void StartSimulation()
         {
             cts = new CancellationTokenSource();
-            simulationTask = RunSimulation(cts.Token);
+            ballTasks = new List<Task>();
+
+            foreach (var ball in BallsList)
+            {
+                // Użyj Task.Factory.StartNew z LongRunning, aby zasugerować dedykowany wątek
+                ballTasks.Add(Task.Factory.StartNew(
+                    () => RunBallSimulation(ball, cts.Token).GetAwaiter().GetResult(),
+                    cts.Token,
+                    TaskCreationOptions.LongRunning,
+                    TaskScheduler.Default));
+            }
         }
 
-        private async Task RunSimulation(CancellationToken cancellationToken)
+        private async Task RunBallSimulation(Ball ball, CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                lock (BallsList) 
+                lock (collisionLock)
                 {
+                    ball.WallCollision();
+                }
 
-                    foreach (var ball in BallsList)
+                lock (collisionLock)
+                {
+                    foreach (var otherBall in BallsList)
                     {
-                        ball.WallCollision();
-                    }
-
-                    for (int i = 0; i < BallsList.Count; i++)
-                    {
-                        for (int j = i + 1; j < BallsList.Count; j++)
+                        if (otherBall != ball)
                         {
-                            BallsList[i].BallsCollision(BallsList[j]);
+                            ball.BallsCollision(otherBall);
                         }
                     }
                 }
 
+                 ((Data.Ball)ball.dataBall).Move();
+
                 await Task.Delay(10, cancellationToken);
             }
         }
+       
 
         #endregion private
 
