@@ -36,7 +36,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         #region internal
         internal void WallCollision()
         {
-            Data.Vector correctedTableSize = new Data.Vector(dataBall.TableSize.x - 4, dataBall.TableSize.y - 4);
+            Data.Vector correctedTableSize = new Data.Vector(dataBall.TableSize.x - 8, dataBall.TableSize.y - 8);
             Data.Vector velocity = (Data.Vector)dataBall.Velocity;
             Data.Vector newPosition = new Data.Vector(dataBall.Position.x, dataBall.Position.y);
 

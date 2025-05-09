@@ -58,7 +58,14 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         public void Stop()
         {
             cts?.Cancel();
-            simulationTask?.Wait(); 
+            try
+            {
+                simulationTask?.Wait();
+            }
+            catch (AggregateException ex) when (ex.InnerExceptions.All(e => e is TaskCanceledException))
+            {
+       
+            }
             cts?.Dispose();
             cts = null;
             simulationTask = null;
@@ -75,10 +82,10 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         private void StartSimulation()
         {
             cts = new CancellationTokenSource();
-            simulationTask = Task.Run(() => RunSimulation(cts.Token), cts.Token);
+            simulationTask = RunSimulation(cts.Token);
         }
 
-        private void RunSimulation(CancellationToken cancellationToken)
+        private async Task RunSimulation(CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -99,7 +106,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
                     }
                 }
 
-                Thread.Sleep(10); 
+                await Task.Delay(10, cancellationToken);
             }
         }
 
