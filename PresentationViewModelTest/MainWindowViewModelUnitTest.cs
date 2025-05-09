@@ -161,10 +161,13 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
         public double Top => throw new NotImplementedException();
 
         public double Left => throw new NotImplementedException();
+        public double Mass => throw new NotImplementedException();
+        public double Radius => throw new NotImplementedException();
 
-        #region INotifyPropertyChanged
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+                #region INotifyPropertyChanged
+
+                public event PropertyChangedEventHandler? PropertyChanged;
 
         #endregion INotifyPropertyChanged
 

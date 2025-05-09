@@ -21,7 +21,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
     {
       DataBallFixture dataBallFixture = new DataBallFixture();
       List<Ball> allBalls = new();
-      Ball newInstance = new(dataBallFixture, 110, 110, allBalls);
+      Ball newInstance = new(dataBallFixture);
       int numberOfCallBackCalled = 0;
       newInstance.NewPositionNotification += (sender, position) => { Assert.IsNotNull(sender); Assert.IsNotNull(position); numberOfCallBackCalled++; };
       dataBallFixture.Move();
@@ -37,7 +37,12 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
       public event EventHandler<Data.IVector>? NewPositionNotification;
       public double Mass => 1.0;
       public double Radius => 1.0;
-      public void MoveTo(Data.IVector newPosition)
+
+            public IVector Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+            public IVector TableSize => throw new NotImplementedException();
+
+            public void MoveTo(Data.IVector newPosition)
       {
       }
         public Data.IVector GetPosition()

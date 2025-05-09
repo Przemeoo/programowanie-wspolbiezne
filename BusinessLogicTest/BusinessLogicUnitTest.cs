@@ -121,8 +121,11 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
             return new DataVectorFixture { x = 0, y = 0 };
         }
         public IVector Velocity { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+                public IVector Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public event EventHandler<IVector>? NewPositionNotification = null;
+                public IVector TableSize => throw new NotImplementedException();
+
+                public event EventHandler<IVector>? NewPositionNotification = null;
       }
     }
 

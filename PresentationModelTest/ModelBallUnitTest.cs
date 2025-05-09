@@ -47,10 +47,9 @@ namespace TP.ConcurrentProgramming.Presentation.Model.Test
       public event EventHandler<IPosition>? NewPositionNotification;
 
       public double Mass => 1.0;
-      public void MoveTo(Data.IVector newPosition)
-      {
-               
-      }
+
+      public double Radius => 12.0;
+
     }
 
     #endregion testing instrumentation
