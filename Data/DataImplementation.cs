@@ -111,11 +111,13 @@ namespace TP.ConcurrentProgramming.Data
                 }
                 Disposed = true;
             }
+            else
+                throw new ObjectDisposedException(nameof(DataImplementation));
         }
 
         public override void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
