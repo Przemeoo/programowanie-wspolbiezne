@@ -24,13 +24,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         #region IBall
 
         public event EventHandler<IPosition>? NewPositionNotification;
-
         public double Mass => dataBall.Mass;
-
         public double Radius => dataBall.Radius;
-
-
-
         #endregion IBall
 
         #region internal
@@ -74,62 +69,34 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             if (otherBall == this)
                 return;
 
-            Data.Vector newPosition = new Data.Vector(dataBall.Position.x, dataBall.Position.y);
-            Data.IVector otherPosition = otherBall.dataBall.Position;
-            double distance = Math.Sqrt(
-                Math.Pow(newPosition.x + dataBall.Radius - (otherPosition.x + otherBall.dataBall.Radius), 2) +
-                Math.Pow(newPosition.y + dataBall.Radius - (otherPosition.y + otherBall.dataBall.Radius), 2)
-            );
+            double x1 = dataBall.Position.x + dataBall.Radius;
+            double y1 = dataBall.Position.y + dataBall.Radius;
+            double x2 = otherBall.dataBall.Position.x + otherBall.dataBall.Radius;
+            double y2 = otherBall.dataBall.Position.y + otherBall.dataBall.Radius;
+            double dx = x1 - x2; 
+            double dy = y1 - y2;
+            double distance = Math.Sqrt(dx * dx + dy * dy);
 
-            if (distance < (dataBall.Radius + otherBall.dataBall.Radius))
+            if (distance >= dataBall.Radius + otherBall.dataBall.Radius || distance < 1e-10)
+                return;
+
+            Data.Vector v1 = (Data.Vector)dataBall.Velocity, v2 = (Data.Vector)otherBall.dataBall.Velocity;
+            double dvx = v1.x - v2.x, dvy = v1.y - v2.y;
+            double dot = dx * dvx + dy * dvy;
+            if (dot >= 0)
+                return;
+
+            double m1 = dataBall.Mass, m2 = otherBall.dataBall.Mass;
+            double factor = 2 * dot / (distance * distance * (m1 + m2));
+            dataBall.Velocity = new Data.Vector(v1.x - factor * m2 * dx, v1.y - factor * m2 * dy);
+            otherBall.dataBall.Velocity = new Data.Vector(v2.x + factor * m1 * dx, v2.y + factor * m1 * dy);
+
+            double overlap = dataBall.Radius + otherBall.dataBall.Radius - distance;
+            if (overlap > 0)
             {
-                Data.Vector velocity = (Data.Vector)dataBall.Velocity;
-                Data.Vector otherVelocity = (Data.Vector)otherBall.dataBall.Velocity;
-                double m1 = dataBall.Mass;
-                double m2 = otherBall.dataBall.Mass;
-
-                Data.Vector deltaPos = new Data.Vector(
-                    (newPosition.x + dataBall.Radius) - (otherPosition.x + otherBall.dataBall.Radius),
-                    (newPosition.y + dataBall.Radius) - (otherPosition.y + otherBall.dataBall.Radius)
-                );
-                Data.Vector deltaVel = new Data.Vector(velocity.x - otherVelocity.x, velocity.y - otherVelocity.y);
-
-                double dot = deltaVel.x * deltaPos.x + deltaVel.y * deltaPos.y;
-                double mag = deltaPos.x * deltaPos.x + deltaPos.y * deltaPos.y;
-
-                if (mag == 0 || dot >= 0)
-                    return;
-
-                double factor = 2 * dot / (mag * (m1 + m2));
-
-                velocity = new Data.Vector(
-                    velocity.x - factor * m2 * deltaPos.x,
-                    velocity.y - factor * m2 * deltaPos.y
-                );
-                otherBall.dataBall.Velocity = new Data.Vector(
-                    otherVelocity.x + factor * m1 * deltaPos.x,
-                    otherVelocity.y + factor * m1 * deltaPos.y
-                );
-
-                double overlap = (dataBall.Radius + otherBall.dataBall.Radius) - distance;
-                if (overlap > 0)
-                {
-                    double correction = overlap / 2; 
-                    newPosition = new Data.Vector(
-                        newPosition.x + (deltaPos.x / distance) * correction,
-                        newPosition.y + (deltaPos.y / distance) * correction
-                    );
-                    Data.Vector otherNewPosition = new Data.Vector(
-                        otherPosition.x - (deltaPos.x / distance) * correction,
-                        otherPosition.y - (deltaPos.y / distance) * correction
-                    );
-
-                    dataBall.Position = newPosition;
-                    otherBall.dataBall.Position = otherNewPosition;
-                }
-
-                dataBall.Velocity = velocity;
-
+                double correction = overlap / distance / (m1 + m2);
+                dataBall.Position = new Data.Vector(dataBall.Position.x + dx * correction * m2, dataBall.Position.y + dy * correction * m2);
+                otherBall.dataBall.Position = new Data.Vector(otherBall.dataBall.Position.x - dx * correction * m1, otherBall.dataBall.Position.y - dy * correction * m1);
             }
         }
 
