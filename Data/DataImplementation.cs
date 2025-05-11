@@ -76,13 +76,13 @@ namespace TP.ConcurrentProgramming.Data
 
                 Ball newBall = new(startingPosition, initialVelocity, tableWidth, tableHeight, radius);
                 upperLayerHandler(startingPosition, newBall);
-                BallsList.Add(newBall);
 
-                _moveTasks.Add(Task.Factory.StartNew(
-                    () => MoveBallAsync(newBall, _cancellationTokenSource.Token).GetAwaiter().GetResult(),
-                    _cancellationTokenSource.Token,
-                    TaskCreationOptions.LongRunning,
-                    TaskScheduler.Default));
+                lock (_lock)
+                {
+                    BallsList.Add(newBall);
+                }
+
+                newBall.StartMoving();
             }
         }
 
@@ -96,18 +96,14 @@ namespace TP.ConcurrentProgramming.Data
             {
                 if (disposing)
                 {
-                    _cancellationTokenSource?.Cancel();
-                    try
+                    lock (_lock)
                     {
-                        Task.WhenAll(_moveTasks).Wait(); 
+                        foreach (var ball in BallsList)
+                        {
+                            ball.StopMoving();
+                        }
+                        BallsList.Clear();
                     }
-                    catch (AggregateException ex) when (ex.InnerExceptions.All(e => e is TaskCanceledException))
-                    {
-
-                    }
-                    _cancellationTokenSource?.Dispose();
-                    BallsList.Clear();
-                    _moveTasks.Clear();
                 }
                 Disposed = true;
             }
@@ -131,26 +127,6 @@ namespace TP.ConcurrentProgramming.Data
         private readonly List<Task> _moveTasks = new();
         private readonly object _lock = new();
 
-        private async Task MoveBallAsync(Ball ball, CancellationToken cancellationToken)
-        {
-            try
-            {
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    lock (_lock) 
-                    {
-                        ball.Move();
-                    }
-                    await Task.Delay(30, cancellationToken);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-            }
-            catch (Exception ex)
-            {
-            }
-        }
 
         #endregion private
 

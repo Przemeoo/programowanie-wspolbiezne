@@ -24,6 +24,8 @@ namespace TP.ConcurrentProgramming.Data
             TableSize = new Vector(tableWidth, tableHeight);
             Radius = radius;
             Mass = random.NextDouble() * 5.0 + 0.5;
+            Running = true;
+            MoveThread = null!;
         }
 
         #endregion ctor
@@ -42,9 +44,15 @@ namespace TP.ConcurrentProgramming.Data
 
         public IVector TableSize { get; }
 
+
         #endregion IBall
 
         #region private
+
+
+        private Thread? MoveThread;
+
+        private volatile bool Running;
 
         private void RaiseNewPositionChangeNotification()
         {
@@ -57,6 +65,25 @@ namespace TP.ConcurrentProgramming.Data
             Vector position = (Vector)Position;
             Position = new Vector(position.x + velocity.x, position.y + velocity.y);
             RaiseNewPositionChangeNotification();
+        }
+
+        internal void StartMoving()
+        {
+                MoveThread = new Thread(() =>
+                {
+                    while (Running)
+                    {
+                        Move();
+                        Thread.Sleep(20);
+                    }
+                });
+                MoveThread.Start();
+        }
+
+        internal void StopMoving()
+        {
+            Running = false;
+            MoveThread?.Join();
         }
 
         #endregion private
