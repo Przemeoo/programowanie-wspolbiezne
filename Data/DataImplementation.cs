@@ -22,7 +22,6 @@ namespace TP.ConcurrentProgramming.Data
 
         #endregion ctor
 
-        #region DataAbstractAPI
 
         private Vector? TableSize;
 
@@ -81,12 +80,8 @@ namespace TP.ConcurrentProgramming.Data
                 {
                     BallsList.Add(newBall);
                 }
-
-                newBall.StartMoving();
             }
         }
-
-        #endregion DataAbstractAPI
 
         #region IDisposable
 
@@ -100,7 +95,7 @@ namespace TP.ConcurrentProgramming.Data
                     {
                         foreach (var ball in BallsList)
                         {
-                            ball.StopMoving();
+                            ball.Dispose();
                         }
                         BallsList.Clear();
                     }
@@ -126,7 +121,6 @@ namespace TP.ConcurrentProgramming.Data
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly List<Task> _moveTasks = new();
         private readonly object _lock = new();
-
 
         #endregion private
 

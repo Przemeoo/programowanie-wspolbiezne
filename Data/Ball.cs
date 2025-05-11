@@ -12,12 +12,12 @@ using System;
 
 namespace TP.ConcurrentProgramming.Data
 {
-    public class Ball : IBall
+    internal class Ball : IBall
     {
         #region ctor
         private static readonly Random random = new Random();
 
-        public Ball(Vector initialPosition, Vector initialVelocity, double tableWidth, double tableHeight, double radius)
+        internal Ball(Vector initialPosition, Vector initialVelocity, double tableWidth, double tableHeight, double radius)
         {
             Position = initialPosition;
             Velocity = initialVelocity;
@@ -26,6 +26,7 @@ namespace TP.ConcurrentProgramming.Data
             Mass = random.NextDouble() * 5.0 + 0.5;
             Running = true;
             MoveThread = null!;
+            StartMoving(); 
         }
 
         #endregion ctor
@@ -44,11 +45,9 @@ namespace TP.ConcurrentProgramming.Data
 
         public IVector TableSize { get; }
 
-
         #endregion IBall
 
         #region private
-
 
         private Thread? MoveThread;
 
@@ -59,7 +58,7 @@ namespace TP.ConcurrentProgramming.Data
             NewPositionNotification?.Invoke(this, Position);
         }
 
-        public void Move()
+        private void Move()
         {
             Vector velocity = (Vector)Velocity;
             Vector position = (Vector)Position;
@@ -67,20 +66,20 @@ namespace TP.ConcurrentProgramming.Data
             RaiseNewPositionChangeNotification();
         }
 
-        internal void StartMoving()
+        private void StartMoving()
         {
-                MoveThread = new Thread(() =>
+            MoveThread = new Thread(() =>
+            {
+                while (Running)
                 {
-                    while (Running)
-                    {
-                        Move();
-                        Thread.Sleep(20);
-                    }
-                });
-                MoveThread.Start();
+                    Move();
+                    Thread.Sleep(20);
+                }
+            });
+            MoveThread.Start();
         }
 
-        internal void StopMoving()
+        internal void Dispose()
         {
             Running = false;
             MoveThread?.Join();
