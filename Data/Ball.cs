@@ -65,23 +65,29 @@ namespace TP.ConcurrentProgramming.Data
             RaiseNewPositionChangeNotification();
         }
 
-        internal void StartMoving()
+        private void StartMoving()
         {
-            MoveThread = new Thread(() =>
+            while (Running)
             {
-                while (Running)
-                {
-                    Move();
-                    Thread.Sleep(20);
-                }
-            });
-            MoveThread.Start();
+                Move(); 
+                Thread.Sleep(20);
+            }
+        }
+
+        internal void Begin()
+        {
+            if (MoveThread == null || !MoveThread.IsAlive)
+            {
+                MoveThread = new Thread(new ThreadStart(StartMoving)); 
+                MoveThread.Start(); 
+            }
         }
 
         internal void Dispose()
         {
             Running = false;
             MoveThread?.Join();
+            MoveThread = null;
         }
 
         #endregion private

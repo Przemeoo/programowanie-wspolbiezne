@@ -80,7 +80,7 @@ namespace TP.ConcurrentProgramming.Data
                 {
                     BallsList.Add(newBall);
                 }
-                newBall.StartMoving();
+                newBall.Begin();
             }
         }
 
