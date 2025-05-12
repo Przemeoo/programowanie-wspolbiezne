@@ -73,13 +73,15 @@ namespace TP.ConcurrentProgramming.Data
                 Thread.Sleep(20);
             }
         }
+        #endregion private
 
+        #region internal
         internal void Begin()
         {
             if (MoveThread == null || !MoveThread.IsAlive)
             {
-                MoveThread = new Thread(new ThreadStart(StartMoving)); 
-                MoveThread.Start(); 
+                MoveThread = new Thread(new ThreadStart(StartMoving));
+                MoveThread.Start();
             }
         }
 
@@ -89,7 +91,6 @@ namespace TP.ConcurrentProgramming.Data
             MoveThread?.Join();
             MoveThread = null;
         }
-
-        #endregion private
+        #endregion internal
     }
 }

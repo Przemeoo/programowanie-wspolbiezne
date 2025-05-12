@@ -13,16 +13,6 @@ namespace TP.ConcurrentProgramming.Data
 {
     internal class DataImplementation : DataAbstractAPI
     {
-        #region ctor
-
-        public DataImplementation()
-        {
-            _cancellationTokenSource = new CancellationTokenSource();
-        }
-
-        #endregion ctor
-
-
         private Vector? TableSize;
 
         public override void Start(int numberOfBalls, Action<IVector, IBall> upperLayerHandler, double tableWidth, double tableHeight)
@@ -119,8 +109,6 @@ namespace TP.ConcurrentProgramming.Data
 
         private bool Disposed = false;
         private readonly List<Ball> BallsList = new();
-        private readonly CancellationTokenSource _cancellationTokenSource;
-        private readonly List<Task> _moveTasks = new();
         private readonly object _lock = new();
 
         #endregion private

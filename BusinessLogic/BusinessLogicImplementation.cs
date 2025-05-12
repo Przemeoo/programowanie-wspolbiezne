@@ -32,6 +32,10 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             if (Disposed)
                 throw new ObjectDisposedException(nameof(BusinessLogicImplementation));
             Stop();
+            lock (collisionLock)
+            {
+                BallsList.Clear();
+            }
             layerBellow.Dispose();
             Disposed = true;
         }
@@ -48,9 +52,12 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             BallsList.Clear();
             layerBellow.Start(numberOfBalls, (startingPosition, databall) =>
             {
-                var ball = new Ball(databall);
-                BallsList.Add(ball);
-                upperLayerHandler(new Position(startingPosition.x, startingPosition.y), ball);
+                lock (collisionLock)
+                {
+                    var ball = new Ball(databall);
+                    upperLayerHandler(new Position(startingPosition.x, startingPosition.y), ball);
+                    BallsList.Add(ball);
+                }
             }, tableWidth, tableHeight);
 
             StartCollisionDetection();
@@ -72,9 +79,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             catch (AggregateException ex) when (ex.InnerExceptions.All(e => e is TaskCanceledException))
             {
             }
-            catch (Exception ex)
-            {
-            }
+
             cts.Dispose();
             cts = null;
             collisionTasks = null;
@@ -85,8 +90,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         private bool Disposed = false;
         private readonly UnderneathLayerAPI layerBellow;
         private readonly List<Ball> BallsList = new();
-        private CancellationTokenSource cts;
-        private List<Task> collisionTasks;
+        private CancellationTokenSource? cts;
+        private List<Task>? collisionTasks;
         private readonly object collisionLock = new();
 
         private void StartCollisionDetection()
@@ -108,9 +113,9 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
+                    ball.WallCollision();
                     lock (collisionLock)
                     {
-                        ball.WallCollision();
                         foreach (var otherBall in BallsList)
                         {
                             if (otherBall != ball)
@@ -123,9 +128,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             catch (OperationCanceledException)
             {
             }
-            catch (Exception ex)
-            {
-            }
+
         }
 
         #endregion private
