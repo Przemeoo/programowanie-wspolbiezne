@@ -16,21 +16,32 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
   [TestClass]
   public class BallUnitTest
   {
-    [TestMethod]
-    public void MoveTestMethod()
-    {
-      DataBallFixture dataBallFixture = new DataBallFixture();
-      List<Ball> allBalls = new();
-      Ball newInstance = new(dataBallFixture);
-      int numberOfCallBackCalled = 0;
-      newInstance.NewPositionNotification += (sender, position) => { Assert.IsNotNull(sender); Assert.IsNotNull(position); numberOfCallBackCalled++; };
-      dataBallFixture.Move();
-      Assert.AreEqual<int>(1, numberOfCallBackCalled);
-    }
+        [TestMethod]
+        public void MoveTestMethod()
+        {
 
-    #region testing instrumentation
+            DataBallFixture dataBallFixture = new DataBallFixture();
+            List<Ball> allBalls = new(); 
+            object collisionLock = new object();
+            Ball newInstance = new(dataBallFixture, allBalls, collisionLock);
+            int numberOfCallBackCalled = 0;
 
-    private class DataBallFixture : Data.IBall
+            newInstance.NewPositionNotification += (sender, position) =>
+            {
+                Assert.IsNotNull(sender);
+                Assert.IsNotNull(position);
+                numberOfCallBackCalled++;
+            };
+
+            dataBallFixture.Move();
+
+            Assert.AreEqual(1, numberOfCallBackCalled);
+        }
+
+
+        #region testing instrumentation
+
+        private class DataBallFixture : Data.IBall
     {
       public Data.IVector Velocity { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
