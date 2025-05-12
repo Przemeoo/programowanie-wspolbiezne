@@ -48,19 +48,36 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             BallsList.Clear();
             layerBellow.Start(numberOfBalls, (startingPosition, databall) =>
             {
-                var ball = new Ball(databall, BallsList, collisionLock);
+                var ball = new Ball(databall);
                 BallsList.Add(ball);
                 upperLayerHandler(new Position(startingPosition.x, startingPosition.y), ball);
             }, tableWidth, tableHeight);
+
+            StartCollisionDetection();
         }
 
         public void Stop()
         {
-            foreach (var ball in BallsList)
+            if (cts == null)
+                return;
+
+            cts.Cancel();
+            try
             {
-                ball.Dispose();
+                if (collisionTasks != null)
+                {
+                    Task.WhenAll(collisionTasks).Wait();
+                }
             }
-            BallsList.Clear();
+            catch (AggregateException ex) when (ex.InnerExceptions.All(e => e is TaskCanceledException))
+            {
+            }
+            catch (Exception ex)
+            {
+            }
+            cts.Dispose();
+            cts = null;
+            collisionTasks = null;
         }
 
         #region private
@@ -68,7 +85,48 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         private bool Disposed = false;
         private readonly UnderneathLayerAPI layerBellow;
         private readonly List<Ball> BallsList = new();
+        private CancellationTokenSource cts;
+        private List<Task> collisionTasks;
         private readonly object collisionLock = new();
+
+        private void StartCollisionDetection()
+        {
+            cts = new CancellationTokenSource();
+            collisionTasks = new List<Task>();
+
+            foreach (var ball in BallsList)
+            {
+                collisionTasks.Add(Task.Run(
+                    () => CheckCollisionsForBallAsync(ball, cts.Token),
+                    cts.Token));
+            }
+        }
+
+        private async Task CheckCollisionsForBallAsync(Ball ball, CancellationToken cancellationToken)
+        {
+            try
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    lock (collisionLock)
+                    {
+                        ball.WallCollision();
+                        foreach (var otherBall in BallsList)
+                        {
+                            if (otherBall != ball)
+                                ball.BallsCollision(otherBall);
+                        }
+                    }
+                    await Task.Delay(20, cancellationToken);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+            }
+        }
 
         #endregion private
 

@@ -83,7 +83,7 @@ namespace TP.ConcurrentProgramming.Data
             }
         }
 
-        public void Dispose()
+        internal void Dispose()
         {
             Running = false;
             MoveThread?.Join();
