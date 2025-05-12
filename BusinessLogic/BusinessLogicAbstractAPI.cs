@@ -56,6 +56,5 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         event EventHandler<IPosition> NewPositionNotification;
         double Mass { get; }
         double Radius { get; }
-
     }
 }

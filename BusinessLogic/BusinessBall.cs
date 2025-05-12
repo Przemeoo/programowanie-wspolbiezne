@@ -17,18 +17,40 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 {
     internal class Ball : IBall
     {
-        public Ball(Data.IBall ball) 
-        {   dataBall = ball;
+        private readonly Data.IBall dataBall;
+        private readonly List<Ball> otherBalls;
+        private readonly object collisionLock;
+        private readonly CancellationTokenSource cts;
+        private readonly Task collisionTask;
+        private bool disposed = false;
+
+        public Ball(Data.IBall ball, List<Ball> otherBalls, object collisionLock)
+        {
+            dataBall = ball;
+            this.otherBalls = otherBalls;
+            this.collisionLock = collisionLock;
             dataBall.NewPositionNotification += RaisePositionChangeEvent;
+            cts = new CancellationTokenSource();
+            collisionTask = Task.Run(() => DetectCollisionsAsync(cts.Token), cts.Token);
         }
-        #region IBall
 
         public event EventHandler<IPosition>? NewPositionNotification;
         public double Mass => dataBall.Mass;
         public double Radius => dataBall.Radius;
-        #endregion IBall
+        public void Dispose()
+        {
+            if (disposed)
+                return;
 
-        #region internal
+            disposed = true;
+            cts.Cancel();
+            try
+            {
+                collisionTask.Wait();
+            }
+            catch (AggregateException) { }
+            cts.Dispose();
+        }
         internal void WallCollision()
         {
             Data.Vector correctedTableSize = new Data.Vector(dataBall.TableSize.x - 8, dataBall.TableSize.y - 8);
@@ -73,7 +95,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             double y1 = dataBall.Position.y + dataBall.Radius;
             double x2 = otherBall.dataBall.Position.x + otherBall.dataBall.Radius;
             double y2 = otherBall.dataBall.Position.y + otherBall.dataBall.Radius;
-            double dx = x1 - x2; 
+            double dx = x1 - x2;
             double dy = y1 - y2;
             double distance = Math.Sqrt(dx * dx + dy * dy);
 
@@ -100,19 +122,37 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             }
         }
 
-        #endregion internal
-
-        #region private
-
-        public readonly Data.IBall dataBall;
-
-        
+        private async Task DetectCollisionsAsync(CancellationToken token)
+        {
+            try
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    lock (collisionLock)
+                    {
+                        WallCollision();
+                        foreach (var otherBall in otherBalls)
+                        {
+                            if (otherBall != this)
+                                BallsCollision(otherBall);
+                        }
+                    }
+                    await Task.Delay(20, token);
+                }
+            }
+            catch (OperationCanceledException) 
+            { 
+            }
+            catch (Exception) 
+            { 
+            }
+        }
 
         private void RaisePositionChangeEvent(object? sender, Data.IVector e)
         {
             NewPositionNotification?.Invoke(this, new Position(e.x, e.y));
         }
 
-        #endregion private
+
     }
 }
