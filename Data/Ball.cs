@@ -26,7 +26,6 @@ namespace TP.ConcurrentProgramming.Data
             Mass = random.NextDouble() * 5.0 + 0.5;
             Running = true;
             MoveThread = null!;
-            StartMoving(); 
         }
 
         #endregion ctor
@@ -66,7 +65,7 @@ namespace TP.ConcurrentProgramming.Data
             RaiseNewPositionChangeNotification();
         }
 
-        private void StartMoving()
+        internal void StartMoving()
         {
             MoveThread = new Thread(() =>
             {
