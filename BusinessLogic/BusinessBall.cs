@@ -27,6 +27,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         public event EventHandler<IPosition>? NewPositionNotification;
         public double Mass => dataBall.Mass;
         public double Radius => dataBall.Radius;
+
+        bool collision = false;
         #endregion IBall
 
         #region internal
@@ -36,27 +38,34 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             Data.Vector velocity = (Data.Vector)dataBall.Velocity;
             Data.Vector newPosition = new Data.Vector(dataBall.Position.x, dataBall.Position.y);
 
-            if (newPosition.x < 0)
+            if (newPosition.x <= 0 && velocity.x < 0)
             {
                 velocity = new Data.Vector(-velocity.x, velocity.y);
+                collision = true;
             }
-            else if (newPosition.x + dataBall.Radius * 2 > correctedTableSize.x)
+            else if (newPosition.x + dataBall.Radius * 2 >= correctedTableSize.x && velocity.x > 0)
             {
                 velocity = new Data.Vector(-velocity.x, velocity.y);
+                collision = true;
             }
 
-            if (newPosition.y < 0)
+            if (newPosition.y <= 0 && velocity.y < 0)
             {
                 velocity = new Data.Vector(velocity.x, -velocity.y);
+                collision = true;
             }
-            else if (newPosition.y + dataBall.Radius * 2 > correctedTableSize.y)
+            else if (newPosition.y + dataBall.Radius * 2 >= correctedTableSize.y && velocity.y > 0)
             {
                 velocity = new Data.Vector(velocity.x, -velocity.y);
+                collision = true;
             }
 
-
+            if (collision)
+            {
+                dataBall.Velocity = velocity;
+            }
             
-            dataBall.Velocity = velocity;
+            
 
 
         }
