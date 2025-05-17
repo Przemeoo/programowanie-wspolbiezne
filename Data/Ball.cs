@@ -71,7 +71,7 @@ namespace TP.ConcurrentProgramming.Data
         private void Move()
         {
             Vector velocity = (Vector)Velocity;
-            _position = new Vector(_position.x + velocity.x * 0.02, _position.y + velocity.y * 0.02);
+            _position = new Vector(_position.x + velocity.x, _position.y + velocity.y);
             RaiseNewPositionChangeNotification();
         }
 

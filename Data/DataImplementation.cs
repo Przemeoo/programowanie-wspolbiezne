@@ -61,7 +61,7 @@ namespace TP.ConcurrentProgramming.Data
                     throw new InvalidOperationException("Nie można znaleźć wolnej pozycji dla kulki po maksymalnej liczbie prób.");
                 }
 
-                Vector initialVelocity = new Vector((random.NextDouble() - 0.5) * 250, (random.NextDouble() - 0.5) * 250);
+                Vector initialVelocity = new Vector((random.NextDouble() - 0.5) * 8, (random.NextDouble() - 0.5) * 8);
 
                 Ball newBall = new(startingPosition, initialVelocity, tableWidth, tableHeight, radius);
                 upperLayerHandler(startingPosition, newBall);
