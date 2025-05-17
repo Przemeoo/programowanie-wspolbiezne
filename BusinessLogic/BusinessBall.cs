@@ -38,28 +38,24 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
             if (newPosition.x < 0)
             {
-                newPosition = new Data.Vector(0, newPosition.y);
                 velocity = new Data.Vector(-velocity.x, velocity.y);
             }
             else if (newPosition.x + dataBall.Radius * 2 > correctedTableSize.x)
             {
-                newPosition = new Data.Vector(correctedTableSize.x - dataBall.Radius * 2, newPosition.y);
                 velocity = new Data.Vector(-velocity.x, velocity.y);
             }
 
             if (newPosition.y < 0)
             {
-                newPosition = new Data.Vector(newPosition.x, 0);
                 velocity = new Data.Vector(velocity.x, -velocity.y);
             }
             else if (newPosition.y + dataBall.Radius * 2 > correctedTableSize.y)
             {
-                newPosition = new Data.Vector(newPosition.x, correctedTableSize.y - dataBall.Radius * 2);
                 velocity = new Data.Vector(velocity.x, -velocity.y);
             }
 
 
-            dataBall.Position = newPosition;
+            
             dataBall.Velocity = velocity;
 
 
@@ -96,8 +92,6 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             if (overlap > 0)
             {
                 double correction = overlap / distance / (m1 + m2);
-                dataBall.Position = new Data.Vector(dataBall.Position.x + dx * correction * m2, dataBall.Position.y + dy * correction * m2);
-                otherBall.dataBall.Position = new Data.Vector(otherBall.dataBall.Position.x - dx * correction * m1, otherBall.dataBall.Position.y - dy * correction * m1);
             }
         }
 

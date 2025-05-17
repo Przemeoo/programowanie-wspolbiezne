@@ -19,8 +19,8 @@ namespace TP.ConcurrentProgramming.Data
 
         internal Ball(Vector initialPosition, Vector initialVelocity, double tableWidth, double tableHeight, double radius)
         {
-            Position = initialPosition;
-            Velocity = initialVelocity;
+            _position = initialPosition;
+            _velocity = initialVelocity;
             TableSize = new Vector(tableWidth, tableHeight);
             Radius = radius;
             Mass = random.NextDouble() * 5.0 + 0.5;
@@ -34,19 +34,30 @@ namespace TP.ConcurrentProgramming.Data
 
         public event EventHandler<IVector>? NewPositionNotification;
 
-        public IVector Velocity { get; set; }
-
+        public IVector Velocity
+        {
+            get
+            {
+                return _velocity;
+            }
+            set
+            {
+                _velocity = (Vector)value;
+            }
+        }
         public double Radius { get; }
 
         public double Mass { get; }
 
-        public IVector Position { get; set; }
+        public IVector Position => _position;
 
         public IVector TableSize { get; }
 
         #endregion IBall
 
         #region private
+        private Vector _position;
+        private Vector _velocity;
 
         private Thread? MoveThread;
 
@@ -60,8 +71,7 @@ namespace TP.ConcurrentProgramming.Data
         private void Move()
         {
             Vector velocity = (Vector)Velocity;
-            Vector position = (Vector)Position;
-            Position = new Vector(position.x + velocity.x, position.y + velocity.y);
+            _position = new Vector(_position.x + velocity.x * 0.02, _position.y + velocity.y * 0.02);
             RaiseNewPositionChangeNotification();
         }
 
