@@ -17,9 +17,10 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 {
     internal class Ball : IBall
     {
-        public Ball(Data.IBall ball)
+        public Ball(Data.IBall ball, double tableWidth, double tableHeight)
         {
             dataBall = ball;
+            TableSize = new Data.Vector(tableWidth, tableHeight);
             dataBall.NewPositionNotification += RaisePositionChangeEvent;
         }
         #region IBall
@@ -28,13 +29,15 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         public double Mass => dataBall.Mass;
         public double Radius => dataBall.Radius;
 
+        private readonly    Data.Vector TableSize;
+
         bool collision = false;
         #endregion IBall
 
         #region internal
         internal void WallCollision()
         {
-            Data.Vector correctedTableSize = new Data.Vector(dataBall.TableSize.x - 8, dataBall.TableSize.y - 8);
+            Data.Vector correctedTableSize = new Data.Vector(TableSize.x - 8, TableSize.y - 8);
             Data.Vector velocity = (Data.Vector)dataBall.Velocity;
             Data.Vector newPosition = new Data.Vector(dataBall.Position.x, dataBall.Position.y);
 

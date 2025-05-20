@@ -13,7 +13,6 @@ namespace TP.ConcurrentProgramming.Data
 {
     internal class DataImplementation : DataAbstractAPI
     {
-        private Vector? TableSize;
 
         public override void Start(int numberOfBalls, Action<IVector, IBall> upperLayerHandler, double tableWidth, double tableHeight)
         {
@@ -21,8 +20,6 @@ namespace TP.ConcurrentProgramming.Data
                 throw new ObjectDisposedException(nameof(DataImplementation));
             if (upperLayerHandler == null)
                 throw new ArgumentNullException(nameof(upperLayerHandler));
-
-            TableSize = new Vector(tableWidth, tableHeight);
 
             Random random = new Random();
             double radius = 0.03 * tableHeight;
@@ -63,7 +60,7 @@ namespace TP.ConcurrentProgramming.Data
 
                 Vector initialVelocity = new Vector((random.NextDouble() - 0.5) * 8, (random.NextDouble() - 0.5) * 8);
 
-                Ball newBall = new(startingPosition, initialVelocity, tableWidth, tableHeight, radius);
+                Ball newBall = new(startingPosition, initialVelocity, radius);
                 upperLayerHandler(startingPosition, newBall);
 
                 lock (_lock)

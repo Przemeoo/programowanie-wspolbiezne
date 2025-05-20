@@ -54,7 +54,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             {
                 lock (collisionLock)
                 {
-                    var ball = new Ball(databall);
+                    var ball = new Ball(databall, tableWidth, tableHeight);
                     upperLayerHandler(new Position(startingPosition.x, startingPosition.y), ball);
                     BallsList.Add(ball);
                 }

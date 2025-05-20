@@ -17,11 +17,10 @@ namespace TP.ConcurrentProgramming.Data
         #region ctor
         private static readonly Random random = new Random();
 
-        internal Ball(Vector initialPosition, Vector initialVelocity, double tableWidth, double tableHeight, double radius)
+        internal Ball(Vector initialPosition, Vector initialVelocity, double radius)
         {
             _position = initialPosition;
             _velocity = initialVelocity;
-            TableSize = new Vector(tableWidth, tableHeight);
             Radius = radius;
             Mass = random.NextDouble() * 5.0 + 0.5;
             Running = true;
@@ -51,8 +50,6 @@ namespace TP.ConcurrentProgramming.Data
 
         public IVector Position => _position;
 
-        public IVector TableSize { get; }
-
         #endregion IBall
 
         #region private
@@ -79,8 +76,11 @@ namespace TP.ConcurrentProgramming.Data
         {
             while (Running)
             {
-                Move(); 
-                Thread.Sleep(20);
+                Move();
+                double speed = Math.Sqrt(Velocity.x * Velocity.x + Velocity.y * Velocity.y);
+                double baseDelay = 1000.0 / (speed * 10.0 + 0.1);
+                int delay = (int)Math.Clamp(baseDelay, 10, 50);
+                Thread.Sleep(delay);
             }
         }
         #endregion private
