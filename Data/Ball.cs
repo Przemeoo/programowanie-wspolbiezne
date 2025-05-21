@@ -78,8 +78,8 @@ namespace TP.ConcurrentProgramming.Data
             {
                 Move();
                 double speed = Math.Sqrt(Velocity.x * Velocity.x + Velocity.y * Velocity.y);
-                double baseDelay = 1000.0 / (speed * 10.0 + 0.1);
-                int delay = (int)Math.Clamp(baseDelay, 10, 50);
+                double baseDelay = 1000.0 / (speed * 20.0 + 0.1);
+                int delay = (int)Math.Clamp(baseDelay, 15, 40);
                 Thread.Sleep(delay);
             }
         }

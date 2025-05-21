@@ -17,7 +17,7 @@ namespace TP.ConcurrentProgramming.Data.Test
         public void ConstructorTestMethod()
         {
             Vector testinVector = new Vector(0.0, 0.0);
-            Ball newInstance = new(testinVector, testinVector, 400, 400, 10);
+            Ball newInstance = new(testinVector, testinVector, 10);
         }
 
     }
