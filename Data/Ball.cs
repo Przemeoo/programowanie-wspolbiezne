@@ -17,11 +17,10 @@ namespace TP.ConcurrentProgramming.Data
         #region ctor
         private static readonly Random random = new Random();
 
-        internal Ball(Vector initialPosition, Vector initialVelocity, double radius)
+        internal Ball(Vector initialPosition, Vector initialVelocity)
         {
             _position = initialPosition;
             _velocity = initialVelocity;
-            Radius = radius;
             Mass = random.NextDouble() * 5.0 + 0.5;
             Running = true;
             MoveThread = null!;
@@ -44,7 +43,6 @@ namespace TP.ConcurrentProgramming.Data
                 _velocity = (Vector)value;
             }
         }
-        public double Radius { get; }
 
         public double Mass { get; }
 

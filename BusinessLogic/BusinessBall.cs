@@ -17,8 +17,9 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 {
     internal class Ball : IBall
     {
-        public Ball(Data.IBall ball, double tableWidth, double tableHeight)
+        public Ball(Data.IBall ball, double tableWidth, double tableHeight, double radius)
         {
+            _radius = radius;
             dataBall = ball;
             TableSize = new Data.Vector(tableWidth, tableHeight);
             dataBall.NewPositionNotification += RaisePositionChangeEvent;
@@ -27,7 +28,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
         public event EventHandler<IPosition>? NewPositionNotification;
         public double Mass => dataBall.Mass;
-        public double Radius => dataBall.Radius;
+        public double Radius => _radius;
 
         private readonly    Data.Vector TableSize;
 
@@ -46,7 +47,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
                 velocity = new Data.Vector(-velocity.x, velocity.y);
                 collision = true;
             }
-            else if (newPosition.x + dataBall.Radius * 2 >= correctedTableSize.x && velocity.x > 0)
+            else if (newPosition.x + Radius * 2 >= correctedTableSize.x && velocity.x > 0)
             {
                 velocity = new Data.Vector(-velocity.x, velocity.y);
                 collision = true;
@@ -57,7 +58,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
                 velocity = new Data.Vector(velocity.x, -velocity.y);
                 collision = true;
             }
-            else if (newPosition.y + dataBall.Radius * 2 >= correctedTableSize.y && velocity.y > 0)
+            else if (newPosition.y + Radius * 2 >= correctedTableSize.y && velocity.y > 0)
             {
                 velocity = new Data.Vector(velocity.x, -velocity.y);
                 collision = true;
@@ -78,15 +79,15 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             if (otherBall == this)
                 return;
 
-            double x1 = dataBall.Position.x + dataBall.Radius;
-            double y1 = dataBall.Position.y + dataBall.Radius;
-            double x2 = otherBall.dataBall.Position.x + otherBall.dataBall.Radius;
-            double y2 = otherBall.dataBall.Position.y + otherBall.dataBall.Radius;
+            double x1 = dataBall.Position.x + Radius;
+            double y1 = dataBall.Position.y + Radius;
+            double x2 = otherBall.dataBall.Position.x + otherBall.Radius;
+            double y2 = otherBall.dataBall.Position.y + otherBall.Radius;
             double dx = x1 - x2;
             double dy = y1 - y2;
             double distance = Math.Sqrt(dx * dx + dy * dy);
 
-            if (distance >= dataBall.Radius + otherBall.dataBall.Radius || distance < 1e-10)
+            if (distance >= Radius + otherBall.Radius || distance < 1e-10)
                 return;
 
             Data.Vector v1 = (Data.Vector)dataBall.Velocity, v2 = (Data.Vector)otherBall.dataBall.Velocity;
@@ -100,7 +101,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             dataBall.Velocity = new Data.Vector(v1.x - factor * m2 * dx, v1.y - factor * m2 * dy);
             otherBall.dataBall.Velocity = new Data.Vector(v2.x + factor * m1 * dx, v2.y + factor * m1 * dy);
 
-            double overlap = dataBall.Radius + otherBall.dataBall.Radius - distance;
+            double overlap = Radius + otherBall.Radius - distance;
             if (overlap > 0)
             {
                 double correction = overlap / distance / (m1 + m2);
@@ -113,7 +114,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
         public readonly Data.IBall dataBall;
 
-
+        private readonly double _radius;
 
         private void RaisePositionChangeEvent(object? sender, Data.IVector e)
         {

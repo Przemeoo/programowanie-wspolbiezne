@@ -42,19 +42,20 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
         public override void Start(int numberOfBalls, Action<IPosition, IBall> upperLayerHandler, double tableWidth, double tableHeight)
         {
+            double radius = 0.03 * tableHeight;
             if (Disposed)
                 throw new ObjectDisposedException(nameof(BusinessLogicImplementation));
             if (upperLayerHandler == null)
                 throw new ArgumentNullException(nameof(upperLayerHandler));
 
             Stop();
-
+            
             BallsList.Clear();
             layerBellow.Start(numberOfBalls, (startingPosition, databall) =>
             {
                 lock (collisionLock)
                 {
-                    var ball = new Ball(databall, tableWidth, tableHeight);
+                    var ball = new Ball(databall, tableWidth, tableHeight, radius);
                     upperLayerHandler(new Position(startingPosition.x, startingPosition.y), ball);
                     BallsList.Add(ball);
                 }

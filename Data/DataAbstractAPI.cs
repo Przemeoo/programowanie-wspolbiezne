@@ -54,8 +54,6 @@ namespace TP.ConcurrentProgramming.Data
 
         double Mass { get; }
 
-        double Radius { get; }
-
         IVector Position { get; }
     }
 }
