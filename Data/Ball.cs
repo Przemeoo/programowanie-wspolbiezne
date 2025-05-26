@@ -21,7 +21,7 @@ namespace TP.ConcurrentProgramming.Data
         {
             _position = initialPosition;
             _velocity = initialVelocity;
-            Mass = random.NextDouble() * 5.0 + 0.5;
+            Mass = random.NextDouble() * 2.0 + 2.0;
             Running = true;
             MoveThread = null!;
         }
@@ -93,7 +93,7 @@ namespace TP.ConcurrentProgramming.Data
             }
         }
 
-        internal void Dispose()
+        internal void Stop()
         {
             Running = false;
             MoveThread?.Join();

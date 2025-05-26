@@ -83,7 +83,7 @@ namespace TP.ConcurrentProgramming.Data
                     {
                         foreach (var ball in BallsList)
                         {
-                            ball.Dispose();
+                            ball.Stop();
                         }
                         BallsList.Clear();
                     }

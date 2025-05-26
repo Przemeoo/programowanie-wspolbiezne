@@ -58,7 +58,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model
      {
       get
         {
-          double value = (Mass - 0.5) / 5.0;
+           double value = (Mass - 2.0) / 2.0;
            value = Math.Clamp(value, 0.0, 1.0);
 
            byte b = (byte)((1 - value) * 255);
