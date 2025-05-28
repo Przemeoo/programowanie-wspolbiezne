@@ -79,10 +79,13 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             if (otherBall == this)
                 return;
 
-            double x1 = dataBall.Position.x + Radius;
-            double y1 = dataBall.Position.y + Radius;
-            double x2 = otherBall.dataBall.Position.x + otherBall.Radius;
-            double y2 = otherBall.dataBall.Position.y + otherBall.Radius;
+            Data.IVector position1 = dataBall.Position;
+            Data.IVector position2 = otherBall.dataBall.Position;
+
+            double x1 = position1.x + Radius;
+            double y1 = position1.y + Radius;
+            double x2 = position2.x + otherBall.Radius;
+            double y2 = position2.y + otherBall.Radius;
             double dx = x1 - x2;
             double dy = y1 - y2;
             double distance = Math.Sqrt(dx * dx + dy * dy);
