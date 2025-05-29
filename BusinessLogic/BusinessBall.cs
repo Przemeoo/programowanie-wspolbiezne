@@ -68,10 +68,6 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             {
                 dataBall.Velocity = velocity;
             }
-            
-            
-
-
         }
 
         internal void BallsCollision(Ball otherBall)
@@ -103,12 +99,6 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             double factor = 2 * dot / (distance * distance * (m1 + m2));
             dataBall.Velocity = new Data.Vector(v1.x - factor * m2 * dx, v1.y - factor * m2 * dy);
             otherBall.dataBall.Velocity = new Data.Vector(v2.x + factor * m1 * dx, v2.y + factor * m1 * dy);
-
-            double overlap = Radius + otherBall.Radius - distance;
-            if (overlap > 0)
-            {
-                double correction = overlap / distance / (m1 + m2);
-            }
         }
 
         #endregion internal
