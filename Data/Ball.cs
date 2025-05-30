@@ -16,7 +16,7 @@ namespace TP.ConcurrentProgramming.Data
     {
         #region ctor
         private static readonly Random random = new Random();
-
+        private readonly DiagnosticLogger logger = DiagnosticLogger.Instance;
         internal Ball(Vector initialPosition, Vector initialVelocity)
         {
             _position = initialPosition;
@@ -24,8 +24,9 @@ namespace TP.ConcurrentProgramming.Data
             Mass = random.NextDouble() * 2.0 + 2.0;
             Running = true;
             MoveThread = null!;
+  
         }
-
+      
         #endregion ctor
 
         #region IBall
@@ -67,6 +68,7 @@ namespace TP.ConcurrentProgramming.Data
         {
             Vector velocity = (Vector)Velocity;
             _position = new Vector(_position.x + velocity.x, _position.y + velocity.y);
+            logger.Log($"Ball {GetHashCode()} Velocity: ({velocity.x:F2}, {velocity.y:F2})");
             RaiseNewPositionChangeNotification();
         }
 
@@ -98,6 +100,7 @@ namespace TP.ConcurrentProgramming.Data
             Running = false;
             MoveThread?.Join();
             MoveThread = null;
+            DiagnosticLogger.Instance.Dispose();
         }
         #endregion internal
     }
