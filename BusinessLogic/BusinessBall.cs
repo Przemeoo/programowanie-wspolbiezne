@@ -12,16 +12,18 @@ using System;
 using System.Collections.Generic;
 using Data = TP.ConcurrentProgramming.Data;
 using BL = TP.ConcurrentProgramming.BusinessLogic;
+using TP.ConcurrentProgramming.Data;
 
 namespace TP.ConcurrentProgramming.BusinessLogic
 {
     internal class Ball : IBall
     {
-        public Ball(Data.IBall ball, double tableWidth, double tableHeight, double radius)
+        public Ball(Data.IBall ball, double tableWidth, double tableHeight, double radius, IDiagnosticLogger? underneathLogger = null)
         {
             _radius = radius;
             dataBall = ball;
             TableSize = new Data.Vector(tableWidth, tableHeight);
+            logger = underneathLogger == null ? DataAbstractAPI.GetLogger() : underneathLogger;
             dataBall.NewPositionNotification += RaisePositionChangeEvent;
         }
         #region IBall
@@ -46,22 +48,25 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             {
                 velocity = new Data.Vector(-velocity.x, velocity.y);
                 collision = true;
+                logger.Log($"Wall collision (left) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({velocity.x}, {velocity.y})");
             }
             else if (newPosition.x + Radius * 2 >= correctedTableSize.x && velocity.x > 0)
             {
                 velocity = new Data.Vector(-velocity.x, velocity.y);
                 collision = true;
+                logger.Log($"Wall collision (right) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({velocity.x}, {velocity.y})");
             }
-
             if (newPosition.y <= 0 && velocity.y < 0)
             {
                 velocity = new Data.Vector(velocity.x, -velocity.y);
                 collision = true;
+                logger.Log($"Wall collision (top) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({velocity.x}, {velocity.y})");
             }
             else if (newPosition.y + Radius * 2 >= correctedTableSize.y && velocity.y > 0)
             {
                 velocity = new Data.Vector(velocity.x, -velocity.y);
                 collision = true;
+                logger.Log($"Wall collision (bottom) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({velocity.x}, {velocity.y})");
             }
 
             if (collision)
@@ -95,6 +100,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             if (dot >= 0)
                 return;
 
+            logger.Log($"Ball collision between Ball ID: {GetHashCode()} at ({x1}, {y1}) and Ball ID: {otherBall.GetHashCode()} at ({x2}, {y2})");
+
             double m1 = dataBall.Mass, m2 = otherBall.dataBall.Mass;
             double factor = 2 * dot / (distance * distance * (m1 + m2));
             dataBall.Velocity = new Data.Vector(v1.x - factor * m2 * dx, v1.y - factor * m2 * dy);
@@ -108,6 +115,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         public readonly Data.IBall dataBall;
 
         private readonly double _radius;
+
+        private readonly IDiagnosticLogger logger;
 
         private void RaisePositionChangeEvent(object? sender, Data.IVector e)
         {

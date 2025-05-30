@@ -1,9 +1,10 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Text;
 
 namespace TP.ConcurrentProgramming.Data
 {
-    internal class DiagnosticLogger : IDisposable
+    internal class DiagnosticLogger : IDiagnosticLogger, IDisposable
     {
         private static readonly DiagnosticLogger _instance = new DiagnosticLogger();
         public static DiagnosticLogger Instance => _instance;
@@ -19,10 +20,11 @@ namespace TP.ConcurrentProgramming.Data
 
         private DiagnosticLogger()
         {
-            string logsDirectory = @"C:\Studia\programowanie-wspolbiezne\Data\Logs";
 
-            Directory.CreateDirectory(logsDirectory);
-            _logFilePath = Path.Combine(logsDirectory, "dataLogs.log");
+            string projectDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..")); 
+            string logsDirectory = Path.Combine(projectDirectory, "Logs");
+            Directory.CreateDirectory(logsDirectory); 
+            _logFilePath = Path.Combine(logsDirectory, "diagnostics.log");
 
             _logWriter = new StreamWriter(_logFilePath, append: true, Encoding.ASCII) { AutoFlush = true };
             _logThread = new Thread(LogToFile) { IsBackground = true };

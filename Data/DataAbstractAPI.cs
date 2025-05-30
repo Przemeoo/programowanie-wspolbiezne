@@ -18,6 +18,10 @@ namespace TP.ConcurrentProgramming.Data
         {
             return modelInstance.Value;
         }
+        public static IDiagnosticLogger GetLogger()
+        {
+            return DiagnosticLogger.Instance;
+        }
 
         #endregion Layer Factory
 
@@ -55,5 +59,10 @@ namespace TP.ConcurrentProgramming.Data
         double Mass { get; }
 
         IVector Position { get; }
+    }
+    public interface IDiagnosticLogger
+    {
+        void Log(string message);
+        void Stop();
     }
 }

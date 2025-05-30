@@ -9,6 +9,7 @@
 //_____________________________________________________________________________________________________________________________________
 
 using System.Diagnostics;
+using TP.ConcurrentProgramming.Data;
 using UnderneathLayerAPI = TP.ConcurrentProgramming.Data.DataAbstractAPI;
 
 namespace TP.ConcurrentProgramming.BusinessLogic
@@ -17,12 +18,13 @@ namespace TP.ConcurrentProgramming.BusinessLogic
     {
         #region ctor
 
-        public BusinessLogicImplementation() : this(null)
+        public BusinessLogicImplementation() : this(null, null)
         { }
 
-        internal BusinessLogicImplementation(UnderneathLayerAPI? underneathLayer)
+        internal BusinessLogicImplementation(UnderneathLayerAPI? underneathLayer, IDiagnosticLogger? underneathLogger)
         {
             layerBellow = underneathLayer == null ? UnderneathLayerAPI.GetDataLayer() : underneathLayer;
+            logger = underneathLogger == null ? DataAbstractAPI.GetLogger() : underneathLogger;
         }
 
         #endregion ctor
@@ -78,6 +80,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
         private bool Disposed = false;
         private readonly UnderneathLayerAPI layerBellow;
+        private readonly IDiagnosticLogger logger;
         private readonly List<Ball> BallsList = new();
         private readonly object collisionLock = new();
 
