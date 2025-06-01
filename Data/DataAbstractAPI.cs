@@ -54,11 +54,14 @@ namespace TP.ConcurrentProgramming.Data
     {
         event EventHandler<IVector> NewPositionNotification;
 
-        IVector Velocity { get; set; }
+        IVector Velocity { get; }
+
+        IVector Position { get; }
+
+        void SetVelocity(double x, double y);
 
         double Mass { get; }
 
-        IVector Position { get; }
     }
     public interface IDiagnosticLogger
     {

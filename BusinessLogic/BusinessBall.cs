@@ -22,7 +22,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         {
             _radius = radius;
             dataBall = ball;
-            TableSize = new Data.Vector(tableWidth, tableHeight);
+            _tableWidth = tableWidth;
+            _tableHeight = tableHeight;
             logger = underneathLogger;
             dataBall.NewPositionNotification += RaisePositionChangeEvent;
         }
@@ -31,47 +32,34 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         public event EventHandler<IPosition>? NewPositionNotification;
         public double Mass => dataBall.Mass;
         public double Radius => _radius;
-
-        private readonly    Data.Vector TableSize;
-
-        bool collision = false;
         #endregion IBall
 
         #region internal
         internal void WallCollision()
         {
-            Data.Vector correctedTableSize = new Data.Vector(TableSize.x - 8, TableSize.y - 8);
-            Data.Vector velocity = (Data.Vector)dataBall.Velocity;
-            Data.Vector newPosition = new Data.Vector(dataBall.Position.x, dataBall.Position.y);
+            double borderMargin = 8.0;
+            Data.IVector velocity = dataBall.Velocity;
+            Data.IVector newPosition = dataBall.Position;
 
             if (newPosition.x <= 0 && velocity.x < 0)
             {
-                velocity = new Data.Vector(-velocity.x, velocity.y);
-                collision = true;
-                logger.Log($"Wall collision (left) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({velocity.x}, {velocity.y})");
+                dataBall.SetVelocity(-velocity.x, velocity.y);
+                logger.Log($"Wall collision (left) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({-velocity.x}, {velocity.y})");
             }
-            else if (newPosition.x + Radius * 2 >= correctedTableSize.x && velocity.x > 0)
+            else if (newPosition.x + Radius * 2 >= _tableWidth - borderMargin && velocity.x > 0)
             {
-                velocity = new Data.Vector(-velocity.x, velocity.y);
-                collision = true;
-                logger.Log($"Wall collision (right) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({velocity.x}, {velocity.y})");
+                dataBall.SetVelocity(-velocity.x, velocity.y);
+                logger.Log($"Wall collision (right) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({-velocity.x}, {velocity.y})");
             }
             if (newPosition.y <= 0 && velocity.y < 0)
             {
-                velocity = new Data.Vector(velocity.x, -velocity.y);
-                collision = true;
-                logger.Log($"Wall collision (top) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({velocity.x}, {velocity.y})");
+                dataBall.SetVelocity(velocity.x, -velocity.y);
+                logger.Log($"Wall collision (top) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({velocity.x}, {-velocity.y})");
             }
-            else if (newPosition.y + Radius * 2 >= correctedTableSize.y && velocity.y > 0)
+            else if (newPosition.y + Radius * 2 >= _tableHeight - borderMargin && velocity.y > 0)
             {
-                velocity = new Data.Vector(velocity.x, -velocity.y);
-                collision = true;
-                logger.Log($"Wall collision (bottom) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({velocity.x}, {velocity.y})");
-            }
-
-            if (collision)
-            {
-                dataBall.Velocity = velocity;
+                dataBall.SetVelocity(velocity.x, -velocity.y);
+                logger.Log($"Wall collision (bottom) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({velocity.x}, {-velocity.y})");
             }
         }
 
@@ -81,7 +69,9 @@ namespace TP.ConcurrentProgramming.BusinessLogic
                 return;
 
             Data.IVector position1 = dataBall.Position;
+            Data.IVector v1 = dataBall.Velocity;
             Data.IVector position2 = otherBall.dataBall.Position;
+            Data.IVector v2 = otherBall.dataBall.Velocity;
 
             double x1 = position1.x + Radius;
             double y1 = position1.y + Radius;
@@ -94,7 +84,6 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             if (distance >= Radius + otherBall.Radius || distance < 1e-10)
                 return;
 
-            Data.Vector v1 = (Data.Vector)dataBall.Velocity, v2 = (Data.Vector)otherBall.dataBall.Velocity;
             double dvx = v1.x - v2.x, dvy = v1.y - v2.y;
             double dot = dx * dvx + dy * dvy;
             if (dot >= 0)
@@ -104,8 +93,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
             double m1 = dataBall.Mass, m2 = otherBall.dataBall.Mass;
             double factor = 2 * dot / (distance * distance * (m1 + m2));
-            dataBall.Velocity = new Data.Vector(v1.x - factor * m2 * dx, v1.y - factor * m2 * dy);
-            otherBall.dataBall.Velocity = new Data.Vector(v2.x + factor * m1 * dx, v2.y + factor * m1 * dy);
+            dataBall.SetVelocity(v1.x - factor * m2 * dx, v1.y - factor * m2 * dy); 
+            otherBall.dataBall.SetVelocity(v2.x + factor * m1 * dx, v2.y + factor * m1 * dy); 
         }
 
         #endregion internal
@@ -115,6 +104,10 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         public readonly Data.IBall dataBall;
 
         private readonly double _radius;
+
+        private readonly double _tableWidth;
+
+        private readonly double _tableHeight;
 
         private readonly IDiagnosticLogger logger;
 
