@@ -21,21 +21,29 @@ namespace TP.ConcurrentProgramming.Data
         private DiagnosticLogger()
         {
             string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            // Znajdź folder projektu, szukając pliku .csproj
-            string projectDirectory = currentDirectory;
-            while (!Directory.GetFiles(projectDirectory, "*.csproj").Any() && Directory.GetParent(projectDirectory) != null)
-            {
-                projectDirectory = Directory.GetParent(projectDirectory).FullName;
-            }
+            string presentationDirectory = Directory.GetParent(currentDirectory)
+                .Parent
+                .Parent
+                .Parent.FullName;
 
-            // Folder solucji to folder nadrzędny wobec folderu projektu
-            string solutionDirectory = Directory.GetParent(projectDirectory)?.FullName ?? projectDirectory;
-            string logsDirectory = Path.Combine(solutionDirectory, "Logs");
+            string projectDirectory = Directory.GetParent(presentationDirectory).FullName;
+            string logsDirectory = Path.Combine(projectDirectory, "Logs");
             Directory.CreateDirectory(logsDirectory);
 
-            // Unikalna nazwa pliku z datą i godziną
-            string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-            logFilePath = Path.Combine(logsDirectory, $"diagnosticsLogs_{timestamp}.log");
+            foreach (var file in Directory.GetFiles(logsDirectory, "diagnosticsLogs_*.log"))
+            {
+                if (File.GetCreationTime(file) < DateTime.Now.AddDays(-7))
+                {
+                    try
+                    {
+                        File.Delete(file);
+                    }
+                    catch (IOException) { }
+                }
+            }
+
+            string dateName = DateTime.Now.ToString("yyyyMMdd_HHmm");
+            logFilePath = Path.Combine(logsDirectory, $"diagnosticsLogs_{dateName}.log");
 
             logWriter = new StreamWriter(logFilePath, append: false, Encoding.ASCII) { AutoFlush = true };
             logThread = new Thread(LogToFile) { IsBackground = true };
