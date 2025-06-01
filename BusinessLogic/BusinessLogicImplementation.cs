@@ -18,13 +18,13 @@ namespace TP.ConcurrentProgramming.BusinessLogic
     {
         #region ctor
 
-        public BusinessLogicImplementation() : this(null, null)
+        public BusinessLogicImplementation() : this(null)
         { }
 
-        internal BusinessLogicImplementation(UnderneathLayerAPI? underneathLayer, IDiagnosticLogger? underneathLogger)
+        internal BusinessLogicImplementation(UnderneathLayerAPI? underneathLayer)
         {
             layerBellow = underneathLayer == null ? UnderneathLayerAPI.GetDataLayer() : underneathLayer;
-            logger = underneathLogger == null ? DataAbstractAPI.GetLogger() : underneathLogger;
+            logger = UnderneathLayerAPI.GetLogger();
         }
 
         #endregion ctor
@@ -57,8 +57,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             {
                 lock (collisionLock)
                 {
-                    var ball = new Ball(databall, tableWidth, tableHeight, radius);
-                    ball.NewPositionNotification += (sender, position) => CheckCollisionsForBall(ball); // Podpinamy sprawdzanie kolizji
+                    var ball = new Ball(databall, tableWidth, tableHeight, radius, logger);
+                    ball.NewPositionNotification += (sender, position) => CheckCollisionsForBall(ball); 
                     upperLayerHandler(new Position(startingPosition.x, startingPosition.y), ball);
                     BallsList.Add(ball);
                 }
@@ -71,7 +71,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             {
                 foreach (var ball in BallsList)
                 {
-                    ball.NewPositionNotification -= (sender, position) => CheckCollisionsForBall(ball); // Odpinamy zdarzenia
+                    ball.NewPositionNotification -= (sender, position) => CheckCollisionsForBall(ball); 
                 }
             }
         }

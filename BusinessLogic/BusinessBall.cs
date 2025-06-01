@@ -18,12 +18,12 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 {
     internal class Ball : IBall
     {
-        public Ball(Data.IBall ball, double tableWidth, double tableHeight, double radius, IDiagnosticLogger? underneathLogger = null)
+        public Ball(Data.IBall ball, double tableWidth, double tableHeight, double radius, IDiagnosticLogger underneathLogger)
         {
             _radius = radius;
             dataBall = ball;
             TableSize = new Data.Vector(tableWidth, tableHeight);
-            logger = underneathLogger == null ? DataAbstractAPI.GetLogger() : underneathLogger;
+            logger = underneathLogger;
             dataBall.NewPositionNotification += RaisePositionChangeEvent;
         }
         #region IBall

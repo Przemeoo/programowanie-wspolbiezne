@@ -21,7 +21,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
         {
             DataBallFixture dataBallFixture = new DataBallFixture();
             List<Ball> allBalls = new();
-            Ball newInstance = new(dataBallFixture, 100, 100, 10);
+            IDiagnosticLogger logger = new TestLogger();
+            Ball newInstance = new(dataBallFixture, 100, 100, 10, logger);
             int numberOfCallBackCalled = 0;
             newInstance.NewPositionNotification += (sender, position) => { Assert.IsNotNull(sender); Assert.IsNotNull(position); numberOfCallBackCalled++; };
             dataBallFixture.Move();
@@ -66,6 +67,19 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
             public double x { get; init; }
             public double y { get; init; }
         }
+        private class TestLogger : IDiagnosticLogger
+        {
+            public void Log(string message)
+            {
+                
+            }
+
+            public void Stop()
+            {
+               
+            }
+        }
+
 
         #endregion testing instrumentation
     }
