@@ -20,11 +20,16 @@ namespace TP.ConcurrentProgramming.Data
 
         private DiagnosticLogger()
         {
+            string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string presentationDirectory = Directory.GetParent(currentDirectory) 
+                .Parent 
+                .Parent 
+                .Parent.FullName; 
 
-            string projectDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..")); 
+            string projectDirectory = Directory.GetParent(presentationDirectory).FullName;
             string logsDirectory = Path.Combine(projectDirectory, "Logs");
-            Directory.CreateDirectory(logsDirectory); 
-            _logFilePath = Path.Combine(logsDirectory, "diagnostics.log");
+            Directory.CreateDirectory(logsDirectory);
+            _logFilePath = Path.Combine(logsDirectory, "diagnosticsLogs.log"); ;
 
             _logWriter = new StreamWriter(_logFilePath, append: true, Encoding.ASCII) { AutoFlush = true };
             _logThread = new Thread(LogToFile) { IsBackground = true };
