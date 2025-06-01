@@ -9,6 +9,7 @@
 //_____________________________________________________________________________________________________________________________________
 
 using System;
+using System.Diagnostics;
 
 namespace TP.ConcurrentProgramming.Data
 {
@@ -64,22 +65,33 @@ namespace TP.ConcurrentProgramming.Data
             NewPositionNotification?.Invoke(this, Position);
         }
 
-        private void Move()
+        private void Move(double deltaTime)
         {
             Vector velocity = (Vector)Velocity;
-            position = new Vector(position.x + velocity.x, position.y + velocity.y);
-            logger.Log($"Ball ID: {GetHashCode()}, Mass:{Mass}, Position: ({position.x}, {position.y}), Velocity: ({velocity.x}, {velocity.y})");
+            _position = new Vector(_position.x + velocity.x * deltaTime, _position.y + velocity.y * deltaTime);
+            logger.Log($"Ball ID: {GetHashCode()}, Mass:{Mass}, Position: ({_position.x}, {_position.y}), Velocity: ({velocity.x}, {velocity.y})");
             RaiseNewPositionChangeNotification();
         }
 
         private void StartMoving()
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            double lastUpdateTime = 0.0;
             while (Running)
             {
-                Move();
+                double currentTime = stopwatch.Elapsed.TotalSeconds;
+                double deltaTime = currentTime - lastUpdateTime;
+
                 double speed = Math.Sqrt(Velocity.x * Velocity.x + Velocity.y * Velocity.y);
                 double baseDelay = 1000.0 / (speed * 20.0 + 0.1);
                 int delay = (int)Math.Clamp(baseDelay, 15, 40);
+
+                if (deltaTime > 0.0)
+                {
+                    Move(deltaTime);
+                    lastUpdateTime = currentTime;
+                }
+
                 Thread.Sleep(delay);
             }
         }
