@@ -9,57 +9,64 @@ namespace TP.ConcurrentProgramming.Data
         private static readonly DiagnosticLogger _instance = new DiagnosticLogger();
         public static DiagnosticLogger Instance => _instance;
 
-        private readonly ConcurrentQueue<string> _logBuffer = new ConcurrentQueue<string>();
-        private readonly Thread _logThread;
-        private volatile bool _isRunning = true;
-        private readonly StreamWriter _logWriter;
-        private readonly string _logFilePath;
-        private readonly object _fileLock = new object();
-        private bool _disposed = false;
-        private const int MaxBufferSize = 15000;
+        private readonly ConcurrentQueue<string> logBuffer = new ConcurrentQueue<string>();
+        private readonly Thread logThread;
+        private volatile bool isRunning = true;
+        private readonly StreamWriter logWriter;
+        private readonly string logFilePath;
+        private readonly object fileLock = new object();
+        private bool disposed = false;
+        private const int MaxBufferSize = 1500;
 
         private DiagnosticLogger()
         {
             string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string presentationDirectory = Directory.GetParent(currentDirectory) 
-                .Parent 
-                .Parent 
-                .Parent.FullName; 
+            // Znajdź folder projektu, szukając pliku .csproj
+            string projectDirectory = currentDirectory;
+            while (!Directory.GetFiles(projectDirectory, "*.csproj").Any() && Directory.GetParent(projectDirectory) != null)
+            {
+                projectDirectory = Directory.GetParent(projectDirectory).FullName;
+            }
 
-            string projectDirectory = Directory.GetParent(presentationDirectory).FullName;
-            string logsDirectory = Path.Combine(projectDirectory, "Logs");
+            // Folder solucji to folder nadrzędny wobec folderu projektu
+            string solutionDirectory = Directory.GetParent(projectDirectory)?.FullName ?? projectDirectory;
+            string logsDirectory = Path.Combine(solutionDirectory, "Logs");
             Directory.CreateDirectory(logsDirectory);
-            _logFilePath = Path.Combine(logsDirectory, "diagnosticsLogs.log"); ;
 
-            _logWriter = new StreamWriter(_logFilePath, append: true, Encoding.ASCII) { AutoFlush = true };
-            _logThread = new Thread(LogToFile) { IsBackground = true };
-            _logThread.Start();
+            // Unikalna nazwa pliku z datą i godziną
+            string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            logFilePath = Path.Combine(logsDirectory, $"diagnosticsLogs_{timestamp}.log");
+
+            logWriter = new StreamWriter(logFilePath, append: false, Encoding.ASCII) { AutoFlush = true };
+            logThread = new Thread(LogToFile) { IsBackground = true };
+            logThread.Start();
         }
 
 
         public void Log(string message)
         {
-            if (_isRunning && !_disposed && _logBuffer.Count < MaxBufferSize)
+            if (isRunning && !disposed && logBuffer.Count < MaxBufferSize)
             {
-                _logBuffer.Enqueue($"{DateTime.Now:O}: {message}");
+                logBuffer.Enqueue($"{DateTime.Now:O}: {message}");
             }
 
         }
 
         private void LogToFile()
         {
-            while (_isRunning)
+            while (isRunning)
             {
-                if (_logBuffer.TryDequeue(out var message))
+                if (logBuffer.TryDequeue(out var message))
                 {
-                    lock (_fileLock)
+                    lock (fileLock)
                     {
                         try
                         {
-                            _logWriter.WriteLine(message);
+                            logWriter.WriteLine(message);
                         }
                         catch (IOException ex)
                         {
+                            System.Diagnostics.Debug.WriteLine($"Error writing to log file: {ex.Message}");
                         }
                     }
                 }
@@ -72,25 +79,25 @@ namespace TP.ConcurrentProgramming.Data
 
         public void Stop()
         {
-            _isRunning = false;
-            _logThread.Join(TimeSpan.FromSeconds(5));
+            isRunning = false;
+            logThread.Join(TimeSpan.FromSeconds(5));
         }
 
         public void Dispose()
         {
-            if (_disposed)
+            if (disposed)
                 return;
 
-            _disposed = true;
+            disposed = true;
             Stop();
 
-            while (_logBuffer.TryDequeue(out var message))
+            while (logBuffer.TryDequeue(out var message))
             {
                 try
                 {
-                    lock (_fileLock)
+                    lock (fileLock)
                     {
-                        _logWriter.WriteLine(message);
+                        logWriter.WriteLine(message);
                     }
                 }
                 catch (IOException ex)
@@ -98,7 +105,7 @@ namespace TP.ConcurrentProgramming.Data
                 }
             }
 
-            _logWriter?.Dispose();
+            logWriter?.Dispose();
         }
     }
 }
