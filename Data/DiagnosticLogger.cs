@@ -10,7 +10,7 @@ namespace TP.ConcurrentProgramming.Data
         private static readonly DiagnosticLogger _instance = new DiagnosticLogger();
         public static DiagnosticLogger Instance => _instance;
 
-        private readonly ConcurrentQueue<DiagnosticLogEntry> logBuffer = new ConcurrentQueue<DiagnosticLogEntry>();
+        private readonly DiagnosticBuffer logBuffer;
         private readonly Thread logThread;
         private volatile bool isRunning = true;
         private readonly StreamWriter logWriter;
@@ -21,6 +21,7 @@ namespace TP.ConcurrentProgramming.Data
 
         private DiagnosticLogger()
         {
+            logBuffer = new DiagnosticBuffer(MaxBufferSize);
             string projectDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\.."));
             string logsDirectory = Path.Combine(projectDirectory, "Logs");
             Directory.CreateDirectory(logsDirectory);
@@ -33,7 +34,10 @@ namespace TP.ConcurrentProgramming.Data
                     {
                         File.Delete(file);
                     }
-                    catch (IOException) { }
+                    catch (IOException ex) 
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Failed to delete old log file '{file}': {ex.Message}");
+                    }
                 }
             }
 
@@ -48,13 +52,13 @@ namespace TP.ConcurrentProgramming.Data
 
         public void Log(string message)
         {
-            if (isRunning && !disposed && logBuffer.Count < MaxBufferSize)
+            if (isRunning && !disposed)
             {
-                logBuffer.Enqueue(new DiagnosticLogEntry
+                if (logBuffer.TryAdd(new DiagnosticLogEntry
                 {
                     Timestamp = DateTime.Now,
                     Message = message
-                });
+                })) ;
             }
         }
 
@@ -62,14 +66,16 @@ namespace TP.ConcurrentProgramming.Data
         {
             while (isRunning)
             {
-                if (logBuffer.TryDequeue(out var logEntry))
+                logBuffer.WaitForData();
+                if (logBuffer.TryTake(out var logEntry))
                 {
-                    lock (fileLock)
-                    {
                         try
                         {
-                            string json = JsonSerializer.Serialize(logEntry);
-                            logWriter.WriteLine(json);
+                            lock (fileLock)
+                            {
+                                string json = JsonSerializer.Serialize(logEntry);
+                                logWriter.WriteLine(json);
+                            }
                         }
                         catch (IOException ex)
                         {
@@ -80,11 +86,6 @@ namespace TP.ConcurrentProgramming.Data
                             System.Diagnostics.Debug.WriteLine($"Error serializing log entry: {ex.Message}");
                         }
                     }
-                }
-                else
-                {
-                    Thread.Sleep(10);
-                }
             }
         }
 
@@ -102,7 +103,7 @@ namespace TP.ConcurrentProgramming.Data
             disposed = true;
             Stop();
 
-            while (logBuffer.TryDequeue(out var logEntry))
+            while (logBuffer.TryTake(out var logEntry))
             {
                 try
                 {
@@ -123,6 +124,7 @@ namespace TP.ConcurrentProgramming.Data
             }
 
             logWriter?.Dispose();
+            logBuffer.Dispose();
         }
     }
 
@@ -132,4 +134,5 @@ namespace TP.ConcurrentProgramming.Data
         public string Message { get; set; }
     }
 
+   
 }
