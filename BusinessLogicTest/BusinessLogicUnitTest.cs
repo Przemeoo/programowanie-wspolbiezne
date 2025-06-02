@@ -116,6 +116,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
         public void MoveTo(Data.IVector newPosition)
         {
         }
+
+        public void SetVelocity(double x, double y) { }
         public IVector GetPosition()
         {
             return new DataVectorFixture { x = 0, y = 0 };

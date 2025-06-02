@@ -68,8 +68,8 @@ namespace TP.ConcurrentProgramming.Data
         private void Move(double deltaTime)
         {
             Vector velocity = (Vector)Velocity;
-            _position = new Vector(_position.x + velocity.x * deltaTime, _position.y + velocity.y * deltaTime);
-            logger.Log($"Ball ID: {GetHashCode()}, Mass:{Mass}, Position: ({_position.x}, {_position.y}), Velocity: ({velocity.x}, {velocity.y})");
+            position = new Vector(position.x + velocity.x * deltaTime, position.y + velocity.y * deltaTime);
+            logger.Log($"Ball ID: {GetHashCode()}, Mass:{Mass}, Position: ({position.x}, {position.y}), Velocity: ({velocity.x}, {velocity.y})");
             RaiseNewPositionChangeNotification();
         }
 

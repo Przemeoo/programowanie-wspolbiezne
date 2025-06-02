@@ -8,10 +8,6 @@
 //
 //_____________________________________________________________________________________________________________________________________
 
-using System;
-using System.Collections.Generic;
-using Data = TP.ConcurrentProgramming.Data;
-using BL = TP.ConcurrentProgramming.BusinessLogic;
 using TP.ConcurrentProgramming.Data;
 
 namespace TP.ConcurrentProgramming.BusinessLogic
@@ -38,8 +34,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         internal void WallCollision()
         {
             double borderMargin = 8.0;
-            Data.IVector velocity = dataBall.Velocity;
-            Data.IVector newPosition = dataBall.Position;
+            IVector velocity = dataBall.Velocity;
+            IVector newPosition = dataBall.Position;
 
             if (newPosition.x <= 0 && velocity.x < 0)
             {
@@ -68,10 +64,10 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             if (otherBall == this)
                 return;
 
-            Data.IVector position1 = dataBall.Position;
-            Data.IVector v1 = dataBall.Velocity;
-            Data.IVector position2 = otherBall.dataBall.Position;
-            Data.IVector v2 = otherBall.dataBall.Velocity;
+            IVector position1 = dataBall.Position;
+            IVector v1 = dataBall.Velocity;
+            IVector position2 = otherBall.dataBall.Position;
+            IVector v2 = otherBall.dataBall.Velocity;
 
             double x1 = position1.x + Radius;
             double y1 = position1.y + Radius;
