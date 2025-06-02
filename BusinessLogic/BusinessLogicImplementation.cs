@@ -34,10 +34,6 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             if (Disposed)
                 throw new ObjectDisposedException(nameof(BusinessLogicImplementation));
             Stop();
-            lock (collisionLock)
-            {
-                BallsList.Clear();
-            }
             layerBellow.Dispose();
             Disposed = true;
         }
@@ -52,7 +48,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
             Stop();
 
-            BallsList.Clear();
+            
             layerBellow.Start(numberOfBalls, (startingPosition, databall) =>
             {
                 lock (collisionLock)
@@ -73,6 +69,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
                 {
                     ball.NewPositionNotification -= (sender, position) => CheckCollisionsForBall(ball); 
                 }
+                BallsList.Clear();
             }
         }
 
