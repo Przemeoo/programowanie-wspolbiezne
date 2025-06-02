@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Text;
+using System.Text.Json;
 
 namespace TP.ConcurrentProgramming.Data
 {
@@ -9,7 +10,7 @@ namespace TP.ConcurrentProgramming.Data
         private static readonly DiagnosticLogger _instance = new DiagnosticLogger();
         public static DiagnosticLogger Instance => _instance;
 
-        private readonly ConcurrentQueue<string> logBuffer = new ConcurrentQueue<string>();
+        private readonly ConcurrentQueue<DiagnosticLogEntry> logBuffer = new ConcurrentQueue<DiagnosticLogEntry>();
         private readonly Thread logThread;
         private volatile bool isRunning = true;
         private readonly StreamWriter logWriter;
@@ -45,7 +46,7 @@ namespace TP.ConcurrentProgramming.Data
             string dateName = DateTime.Now.ToString("yyyyMMdd_HHmm");
             logFilePath = Path.Combine(logsDirectory, $"diagnosticsLogs_{dateName}.log");
 
-            logWriter = new StreamWriter(logFilePath, append: false, Encoding.ASCII) { AutoFlush = true };
+            logWriter = new StreamWriter(logFilePath, append: false, Encoding.UTF8) { AutoFlush = true };
             logThread = new Thread(LogToFile) { IsBackground = true };
             logThread.Start();
         }
@@ -55,32 +56,43 @@ namespace TP.ConcurrentProgramming.Data
         {
             if (isRunning && !disposed && logBuffer.Count < MaxBufferSize)
             {
-                logBuffer.Enqueue($"{DateTime.Now:O}: {message}");
+                logBuffer.Enqueue(new DiagnosticLogEntry
+                {
+                    Timestamp = DateTime.Now,
+                    Message = message
+                });
             }
-
         }
 
         private void LogToFile()
         {
             while (isRunning)
             {
-                if (logBuffer.TryDequeue(out var message))
+                if (logBuffer.TryDequeue(out var logEntry))
                 {
                     lock (fileLock)
                     {
                         try
                         {
-                            logWriter.WriteLine(message);
+                            string json = JsonSerializer.Serialize(logEntry, new JsonSerializerOptions
+                            {
+                                WriteIndented = false
+                            });
+                            logWriter.WriteLine(json);
                         }
                         catch (IOException ex)
                         {
                             System.Diagnostics.Debug.WriteLine($"Error writing to log file: {ex.Message}");
                         }
+                        catch (JsonException ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Error serializing log entry: {ex.Message}");
+                        }
                     }
                 }
                 else
                 {
-                    Thread.Sleep(10); 
+                    Thread.Sleep(10);
                 }
             }
         }
@@ -99,21 +111,37 @@ namespace TP.ConcurrentProgramming.Data
             disposed = true;
             Stop();
 
-            while (logBuffer.TryDequeue(out var message))
+            while (logBuffer.TryDequeue(out var logEntry))
             {
                 try
                 {
                     lock (fileLock)
                     {
-                        logWriter.WriteLine(message);
+                        string json = JsonSerializer.Serialize(logEntry, new JsonSerializerOptions
+                        {
+                            WriteIndented = false
+                        });
+                        logWriter.WriteLine(json);
                     }
                 }
                 catch (IOException ex)
                 {
+                    System.Diagnostics.Debug.WriteLine($"Error writing to log file during dispose: {ex.Message}");
+                }
+                catch (JsonException ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error serializing log entry during dispose: {ex.Message}");
                 }
             }
 
             logWriter?.Dispose();
         }
     }
+
+    internal class DiagnosticLogEntry
+    {
+        public DateTime Timestamp { get; set; }
+        public string Message { get; set; }
+    }
+
 }
