@@ -85,12 +85,12 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             if (dot >= 0)
                 return;
 
-            logger.Log($"Ball collision between Ball ID: {GetHashCode()} at ({x1}, {y1}) and Ball ID: {otherBall.GetHashCode()} at ({x2}, {y2})");
-
             double m1 = dataBall.Mass, m2 = otherBall.dataBall.Mass;
             double factor = 2 * dot / (distance * distance * (m1 + m2));
             dataBall.SetVelocity(v1.x - factor * m2 * dx, v1.y - factor * m2 * dy); 
-            otherBall.dataBall.SetVelocity(v2.x + factor * m1 * dx, v2.y + factor * m1 * dy); 
+            otherBall.dataBall.SetVelocity(v2.x + factor * m1 * dx, v2.y + factor * m1 * dy);
+
+            logger.Log($"Balls collision between Ball1 ID: {GetHashCode()}, Position: ({x1}, {y1}), New Velocity: ({dataBall.Velocity.x}, {dataBall.Velocity.y}) and Ball2 ID: {otherBall.GetHashCode()}, Position: ({x2}, {y2}), New Velocity: ({otherBall.dataBall.Velocity.x}, {otherBall.dataBall.Velocity.y})");
         }
 
         #endregion internal

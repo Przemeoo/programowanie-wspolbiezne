@@ -21,13 +21,7 @@ namespace TP.ConcurrentProgramming.Data
 
         private DiagnosticLogger()
         {
-            string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string presentationDirectory = Directory.GetParent(currentDirectory)
-                .Parent
-                .Parent
-                .Parent.FullName;
-
-            string projectDirectory = Directory.GetParent(presentationDirectory).FullName;
+            string projectDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\.."));
             string logsDirectory = Path.Combine(projectDirectory, "Logs");
             Directory.CreateDirectory(logsDirectory);
 
@@ -43,7 +37,7 @@ namespace TP.ConcurrentProgramming.Data
                 }
             }
 
-            string dateName = DateTime.Now.ToString("yyyyMMdd_HHmm");
+            string dateName = DateTime.Now.ToString("dd.MM.yyyy_HH.mm");
             logFilePath = Path.Combine(logsDirectory, $"diagnosticsLogs_{dateName}.log");
 
             logWriter = new StreamWriter(logFilePath, append: false, Encoding.UTF8) { AutoFlush = true };
@@ -74,10 +68,7 @@ namespace TP.ConcurrentProgramming.Data
                     {
                         try
                         {
-                            string json = JsonSerializer.Serialize(logEntry, new JsonSerializerOptions
-                            {
-                                WriteIndented = false
-                            });
+                            string json = JsonSerializer.Serialize(logEntry);
                             logWriter.WriteLine(json);
                         }
                         catch (IOException ex)
@@ -117,10 +108,7 @@ namespace TP.ConcurrentProgramming.Data
                 {
                     lock (fileLock)
                     {
-                        string json = JsonSerializer.Serialize(logEntry, new JsonSerializerOptions
-                        {
-                            WriteIndented = false
-                        });
+                        string json = JsonSerializer.Serialize(logEntry);
                         logWriter.WriteLine(json);
                     }
                 }
