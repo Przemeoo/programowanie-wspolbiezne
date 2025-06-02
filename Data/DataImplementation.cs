@@ -29,7 +29,7 @@ namespace TP.ConcurrentProgramming.Data
                 Vector startingPosition;
 
                 bool validPosition;
-                int maxAttempts = 100;
+                int maxAttempts = 200;
                 do
                 {
                     startingPosition = new Vector(
@@ -41,10 +41,10 @@ namespace TP.ConcurrentProgramming.Data
                     foreach (var existingBall in BallsList)
                     {
                         double distance = Math.Sqrt(
-                            Math.Pow(startingPosition.x + existingBall.Position.x, 2) +
-                            Math.Pow(startingPosition.y + existingBall.Position.y, 2)
+                            Math.Pow(startingPosition.x - existingBall.Position.x, 2) +
+                            Math.Pow(startingPosition.y - existingBall.Position.y, 2)
                         );
-                        if (distance < (2*radius))
+                        if (distance < (2 * radius + 5))
                         {
                             validPosition = false;
                             break;
