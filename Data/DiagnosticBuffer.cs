@@ -2,7 +2,7 @@
 
 namespace TP.ConcurrentProgramming.Data
 {
-    internal class DiagnosticBuffer: IDisposable
+    internal class DiagnosticBuffer
     {
         private readonly DiagnosticLogEntry?[] buffer;
         private int readIndex;
@@ -10,7 +10,6 @@ namespace TP.ConcurrentProgramming.Data
         private int count;
         private readonly int maxSize;
         private readonly object bufferLock = new object();
-        private readonly SemaphoreSlim dataAvailable;
 
         public DiagnosticBuffer(int size)
         {
@@ -19,7 +18,6 @@ namespace TP.ConcurrentProgramming.Data
             readIndex = 0;
             writeIndex = 0;
             count = 0;
-            dataAvailable = new SemaphoreSlim(0, size);
         }
 
         public bool TryAdd(DiagnosticLogEntry item)
@@ -34,7 +32,6 @@ namespace TP.ConcurrentProgramming.Data
                 buffer[writeIndex] = item;
                 writeIndex = (writeIndex + 1) % maxSize;
                 count++;
-                dataAvailable.Release(); 
                 return true;
             }
         }
@@ -54,32 +51,6 @@ namespace TP.ConcurrentProgramming.Data
                 readIndex = (readIndex + 1) % maxSize;
                 count--;
                 return true;
-            }
-        }
-
-        public void WaitForData()
-        {
-            dataAvailable.Wait(); 
-        }
-
-        public void ReleaseSemaphore()
-        {
-            dataAvailable.Release(maxSize);
-        }
-
-        public void Dispose()
-        {
-            dataAvailable.Dispose();
-        }
-
-        public int Count
-        {
-            get
-            {
-                lock (bufferLock)
-                {
-                    return count;
-                }
             }
         }
     }

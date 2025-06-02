@@ -26,7 +26,7 @@ namespace TP.ConcurrentProgramming.Data
             string logsDirectory = Path.Combine(projectDirectory, "Logs");
             Directory.CreateDirectory(logsDirectory);
 
-            foreach (var file in Directory.GetFiles(logsDirectory, "diagnosticsLogs_*.log"))
+            foreach (var file in Directory.GetFiles(logsDirectory, "diagnosticsLogs_*.json"))
             {
                 if (File.GetCreationTime(file) < DateTime.Now.AddDays(-7))
                 {
@@ -42,7 +42,7 @@ namespace TP.ConcurrentProgramming.Data
             }
 
             string dateName = DateTime.Now.ToString("dd.MM.yyyy_HH.mm");
-            logFilePath = Path.Combine(logsDirectory, $"diagnosticsLogs_{dateName}.log");
+            logFilePath = Path.Combine(logsDirectory, $"diagnosticsLogs_{dateName}.json");
 
             logWriter = new StreamWriter(logFilePath, append: false, Encoding.UTF8) { AutoFlush = true };
             logThread = new Thread(LogToFile) { IsBackground = true };
@@ -66,7 +66,6 @@ namespace TP.ConcurrentProgramming.Data
         {
             while (isRunning)
             {
-                logBuffer.WaitForData();
                 if (logBuffer.TryTake(out var logEntry))
                 {
                         try
@@ -86,13 +85,16 @@ namespace TP.ConcurrentProgramming.Data
                             System.Diagnostics.Debug.WriteLine($"Error serializing log entry: {ex.Message}");
                         }
                     }
+                else
+                {
+                    Thread.Sleep(10);
+                }
             }
         }
 
         public void Stop()
         {
             isRunning = false;
-            logBuffer.ReleaseSemaphore();
             logThread.Join(TimeSpan.FromSeconds(5));
         }
 
@@ -125,7 +127,6 @@ namespace TP.ConcurrentProgramming.Data
             }
 
             logWriter?.Dispose();
-            logBuffer.Dispose();
         }
     }
 
