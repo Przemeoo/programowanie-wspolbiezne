@@ -62,6 +62,11 @@ namespace TP.ConcurrentProgramming.Data
             dataAvailable.Wait(); 
         }
 
+        public void ReleaseSemaphore()
+        {
+            dataAvailable.Release(maxSize);
+        }
+
         public void Dispose()
         {
             dataAvailable.Dispose();

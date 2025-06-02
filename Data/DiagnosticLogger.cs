@@ -92,6 +92,7 @@ namespace TP.ConcurrentProgramming.Data
         public void Stop()
         {
             isRunning = false;
+            logBuffer.ReleaseSemaphore();
             logThread.Join(TimeSpan.FromSeconds(5));
         }
 
