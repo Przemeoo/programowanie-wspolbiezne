@@ -7,8 +7,8 @@ namespace TP.ConcurrentProgramming.Data
 {
     internal class DiagnosticLogger : IDiagnosticLogger, IDisposable
     {
-        private static readonly DiagnosticLogger _instance = new DiagnosticLogger();
-        public static DiagnosticLogger Instance => _instance;
+        private static readonly Lazy<DiagnosticLogger> _instance = new Lazy<DiagnosticLogger>(() => new DiagnosticLogger());
+        public static DiagnosticLogger Instance => _instance.Value;
 
         private readonly DiagnosticBuffer logBuffer;
         private readonly Thread logThread;
@@ -45,20 +45,20 @@ namespace TP.ConcurrentProgramming.Data
             logFilePath = Path.Combine(logsDirectory, $"diagnosticsLogs_{dateName}.json");
 
             logWriter = new StreamWriter(logFilePath, append: false, Encoding.UTF8) { AutoFlush = true };
-            logThread = new Thread(LogToFile) { IsBackground = true };
+            logThread = new Thread(LogToFile);
             logThread.Start();
         }
 
 
-        public void Log(string message)
+        public void Log(DiagnosticLogEntry logEntry)
         {
             if (isRunning && !disposed)
             {
-                if (logBuffer.TryAdd(new DiagnosticLogEntry
+                logEntry.Timestamp = DateTime.Now; // Ustawiamy czas w loggerze
+                if (!logBuffer.TryAdd(logEntry))
                 {
-                    Timestamp = DateTime.Now,
-                    Message = message
-                })) ;
+                    System.Diagnostics.Debug.WriteLine("Buffer full, log entry discarded.");
+                }
             }
         }
 
@@ -92,19 +92,15 @@ namespace TP.ConcurrentProgramming.Data
             }
         }
 
-        public void Stop()
-        {
-            isRunning = false;
-            logThread.Join(TimeSpan.FromSeconds(5));
-        }
-
         public void Dispose()
         {
             if (disposed)
                 return;
 
+            isRunning = false;
             disposed = true;
-            Stop();
+
+            logThread.Join();
 
             while (logBuffer.TryTake(out var logEntry))
             {
@@ -130,11 +126,17 @@ namespace TP.ConcurrentProgramming.Data
         }
     }
 
-    internal class DiagnosticLogEntry
+    public class DiagnosticLogEntry
     {
         public DateTime Timestamp { get; set; }
-        public string Message { get; set; }
+        public int BallId { get; set; }
+        public double Mass { get; set; }
+        public double PositionX { get; set; }
+        public double PositionY { get; set; }
+        public double VelocityX { get; set; }
+        public double VelocityY { get; set; }
     }
 
-   
+
+
 }

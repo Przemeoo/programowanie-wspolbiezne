@@ -40,22 +40,22 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             if (newPosition.x <= 0 && velocity.x < 0)
             {
                 dataBall.SetVelocity(-velocity.x, velocity.y);
-                logger.Log($"Wall collision (left) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({-velocity.x}, {velocity.y})");
+                //logger.Log($"Wall collision (left) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({-velocity.x}, {velocity.y})");
             }
             else if (newPosition.x + Radius * 2 >= _tableWidth - borderMargin && velocity.x > 0)
             {
                 dataBall.SetVelocity(-velocity.x, velocity.y);
-                logger.Log($"Wall collision (right) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({-velocity.x}, {velocity.y})");
+                //logger.Log($"Wall collision (right) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({-velocity.x}, {velocity.y})");
             }
             if (newPosition.y <= 0 && velocity.y < 0)
             {
                 dataBall.SetVelocity(velocity.x, -velocity.y);
-                logger.Log($"Wall collision (top) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({velocity.x}, {-velocity.y})");
+                //logger.Log($"Wall collision (top) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({velocity.x}, {-velocity.y})");
             }
             else if (newPosition.y + Radius * 2 >= _tableHeight - borderMargin && velocity.y > 0)
             {
                 dataBall.SetVelocity(velocity.x, -velocity.y);
-                logger.Log($"Wall collision (bottom) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({velocity.x}, {-velocity.y})");
+                //logger.Log($"Wall collision (bottom) for Ball ID: {GetHashCode()}, Position: ({newPosition.x}, {newPosition.y}), New Velocity: ({velocity.x}, {-velocity.y})");
             }
         }
 
@@ -90,7 +90,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             dataBall.SetVelocity(v1.x - factor * m2 * dx, v1.y - factor * m2 * dy); 
             otherBall.dataBall.SetVelocity(v2.x + factor * m1 * dx, v2.y + factor * m1 * dy);
 
-            logger.Log($"Balls collision between Ball1 ID: {GetHashCode()}, Position: ({x1}, {y1}), New Velocity: ({dataBall.Velocity.x}, {dataBall.Velocity.y}) and Ball2 ID: {otherBall.GetHashCode()}, Position: ({x2}, {y2}), New Velocity: ({otherBall.dataBall.Velocity.x}, {otherBall.dataBall.Velocity.y})");
+            //logger.Log($"Balls collision between Ball1 ID: {GetHashCode()}, Position: ({x1}, {y1}), New Velocity: ({dataBall.Velocity.x}, {dataBall.Velocity.y}) and Ball2 ID: {otherBall.GetHashCode()}, Position: ({x2}, {y2}), New Velocity: ({otherBall.dataBall.Velocity.x}, {otherBall.dataBall.Velocity.y})");
         }
 
         #endregion internal

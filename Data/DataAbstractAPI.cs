@@ -63,9 +63,10 @@ namespace TP.ConcurrentProgramming.Data
         double Mass { get; }
 
     }
-    public interface IDiagnosticLogger
+    public interface IDiagnosticLogger : IDisposable
     {
-        void Log(string message);
-        void Stop();
+        void Log(DiagnosticLogEntry logEntry);
+
+
     }
 }
