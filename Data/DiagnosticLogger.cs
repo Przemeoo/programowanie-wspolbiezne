@@ -126,7 +126,7 @@ namespace TP.ConcurrentProgramming.Data
         }
     }
 
-    public class DiagnosticLogEntry
+    public class DiagnosticLogEntry 
     {
         public DateTime Timestamp { get; set; }
         public int BallId { get; set; }
@@ -135,8 +135,16 @@ namespace TP.ConcurrentProgramming.Data
         public double PositionY { get; set; }
         public double VelocityX { get; set; }
         public double VelocityY { get; set; }
+        public CollisionType? CollisionType { get; set; }
     }
 
-
+    public enum CollisionType
+    {
+        WallLeft,
+        WallRight,
+        WallTop,
+        WallBottom,
+        BallToBall
+    }
 
 }
