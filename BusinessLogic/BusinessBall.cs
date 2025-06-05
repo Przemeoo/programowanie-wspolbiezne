@@ -41,7 +41,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             {
                 dataBall.SetVelocity(-velocity.x, velocity.y);
                 logger.LogCollision(
-                                    ballId1: GetHashCode(),
+                                    ballId1: dataBall.GetHashCode(),
                                     mass1: Mass,
                                     positionX1: newPosition.x,
                                     positionY1: newPosition.y,
@@ -55,7 +55,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             {
                 dataBall.SetVelocity(-velocity.x, velocity.y);
                 logger.LogCollision(
-                                ballId1: GetHashCode(),
+                                ballId1: dataBall.GetHashCode(),
                                 mass1: Mass,
                                 positionX1: newPosition.x,
                                 positionY1: newPosition.y,
@@ -69,7 +69,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             {
                 dataBall.SetVelocity(velocity.x, -velocity.y);
                 logger.LogCollision(
-                               ballId1: GetHashCode(),
+                               ballId1: dataBall.GetHashCode(),
                                mass1: Mass,
                                positionX1: newPosition.x,
                                positionY1: newPosition.y,
@@ -83,7 +83,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             {
                 dataBall.SetVelocity(velocity.x, -velocity.y);
                 logger.LogCollision(
-                                ballId1: GetHashCode(),
+                                ballId1: dataBall.GetHashCode(),
                                 mass1: Mass,
                                 positionX1: newPosition.x,
                                 positionY1: newPosition.y,
@@ -128,14 +128,14 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
 
             logger.LogCollision(
-                            ballId1: GetHashCode(),
+                            ballId1: dataBall.GetHashCode(),
                             mass1: Mass,
                             positionX1: x1,
                             positionY1: y1,
                             velocityX1: dataBall.Velocity.x,
                             velocityY1: dataBall.Velocity.y,
                             collisionType: CollisionType.BallToBall,
-                            message: $"Ball collision between balls: {GetHashCode()} and {otherBall.GetHashCode()}"
+                            message: $"Ball collision between balls: {dataBall.GetHashCode()} and {otherBall.dataBall.GetHashCode()}"
                         );
         }
 

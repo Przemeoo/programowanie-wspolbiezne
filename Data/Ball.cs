@@ -77,6 +77,7 @@ namespace TP.ConcurrentProgramming.Data
                 PositionY1 = position.y,
                 VelocityX1 = velocity.x,
                 VelocityY1 = velocity.y,
+                CollisionType = CollisionType.BallMovment,
                 Message = $"Ball movment"
             };
 

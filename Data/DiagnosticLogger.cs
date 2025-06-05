@@ -164,6 +164,7 @@ namespace TP.ConcurrentProgramming.Data
 
     public enum CollisionType
     {
+        BallMovment,
         WallLeft,
         WallRight,
         WallTop,
