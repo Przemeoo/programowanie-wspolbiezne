@@ -67,7 +67,8 @@ namespace TP.ConcurrentProgramming.Data
 
     public interface IDiagnosticLogger : IDisposable
     {
-        void Log(DiagnosticLogEntry logEntry); 
+        void LogCollision(int ballId1, double mass1, double positionX1, double positionY1, double velocityX1, double velocityY1,
+                                 CollisionType collisionType, string message);
     }
-
 }
+

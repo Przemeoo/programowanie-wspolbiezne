@@ -40,66 +40,58 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             if (newPosition.x <= 0 && velocity.x < 0)
             {
                 dataBall.SetVelocity(-velocity.x, velocity.y);
-                logger.Log(new DiagnosticLogEntry
-                {
-                    BallId1 = GetHashCode(),
-                    PositionX1 = newPosition.x,
-                    PositionY1 = newPosition.y,
-                    VelocityX1 = -velocity.x,
-                    VelocityY1 = velocity.y,
-                    Mass1 = Mass,
-                    Timestamp = DateTime.Now,
-                    CollisionType = CollisionType.WallLeft,
-                    Message = $"Wall collision - left"
-                });
+                logger.LogCollision(
+                                    ballId1: GetHashCode(),
+                                    mass1: Mass,
+                                    positionX1: newPosition.x,
+                                    positionY1: newPosition.y,
+                                    velocityX1: -velocity.x,
+                                    velocityY1: velocity.y,
+                                    collisionType: CollisionType.WallLeft,
+                                    message: "Wall collision - left"
+                                );
             }
             else if (newPosition.x + Radius * 2 >= _tableWidth - borderMargin && velocity.x > 0)
             {
                 dataBall.SetVelocity(-velocity.x, velocity.y);
-                logger.Log(new DiagnosticLogEntry
-                {
-                    BallId1 = GetHashCode(),
-                    PositionX1 = newPosition.x,
-                    PositionY1 = newPosition.y,
-                    VelocityX1 = -velocity.x,
-                    VelocityY1 = velocity.y,
-                    Mass1 = Mass,
-                    Timestamp = DateTime.Now,
-                    CollisionType = CollisionType.WallRight,
-                    Message = $"Wall collision - right"
-                });
+                logger.LogCollision(
+                                ballId1: GetHashCode(),
+                                mass1: Mass,
+                                positionX1: newPosition.x,
+                                positionY1: newPosition.y,
+                                velocityX1: -velocity.x,
+                                velocityY1: velocity.y,
+                                collisionType: CollisionType.WallRight,
+                                message: "Wall collision - right"
+                            );
             }
             if (newPosition.y <= 0 && velocity.y < 0)
             {
                 dataBall.SetVelocity(velocity.x, -velocity.y);
-                logger.Log(new DiagnosticLogEntry
-                {
-                    BallId1 = GetHashCode(),
-                    PositionX1 = newPosition.x,
-                    PositionY1 = newPosition.y,
-                    VelocityX1 = velocity.x,
-                    VelocityY1 = -velocity.y,
-                    Mass1 = Mass,
-                    Timestamp = DateTime.Now,
-                    CollisionType = CollisionType.WallTop,
-                    Message = $"Wall collision - top"
-                });
+                logger.LogCollision(
+                               ballId1: GetHashCode(),
+                               mass1: Mass,
+                               positionX1: newPosition.x,
+                               positionY1: newPosition.y,
+                               velocityX1: velocity.x,
+                               velocityY1: -velocity.y,
+                               collisionType: CollisionType.WallTop,
+                               message: "Wall collision - top"
+                           );
             }
             else if (newPosition.y + Radius * 2 >= _tableHeight - borderMargin && velocity.y > 0)
             {
                 dataBall.SetVelocity(velocity.x, -velocity.y);
-                logger.Log(new DiagnosticLogEntry
-                {
-                    BallId1 = GetHashCode(),
-                    PositionX1 = newPosition.x,
-                    PositionY1 = newPosition.y,
-                    VelocityX1 = velocity.x,
-                    VelocityY1 = -velocity.y,
-                    Mass1 = Mass,
-                    Timestamp = DateTime.Now,
-                    CollisionType = CollisionType.WallBottom,
-                    Message = $"Wall collision - bottom"
-                });
+                logger.LogCollision(
+                                ballId1: GetHashCode(),
+                                mass1: Mass,
+                                positionX1: newPosition.x,
+                                positionY1: newPosition.y,
+                                velocityX1: velocity.x,
+                                velocityY1: -velocity.y,
+                                collisionType: CollisionType.WallBottom,
+                                message: "Wall collision - bottom"
+                            );
             }
         }
 
@@ -135,24 +127,16 @@ namespace TP.ConcurrentProgramming.BusinessLogic
             otherBall.dataBall.SetVelocity(v2.x + factor * m1 * dx, v2.y + factor * m1 * dy);
 
 
-            logger.Log(new DiagnosticLogEntry
-            {
-                BallId1 = GetHashCode(),
-                PositionX1 = x1,
-                PositionY1 = y1,
-                VelocityX1 = dataBall.Velocity.x,
-                VelocityY1 = dataBall.Velocity.y,
-                Mass1 = Mass,
-                Timestamp = DateTime.Now,
-                BallId2 = otherBall.GetHashCode(),
-                Mass2 = otherBall.Mass,
-                PositionX2 = x2,
-                PositionY2 = y2,
-                VelocityX2 = otherBall.dataBall.Velocity.x,
-                VelocityY2 = otherBall.dataBall.Velocity.y,
-                CollisionType = CollisionType.BallToBall,
-                Message = $"Ball collision between balls: {GetHashCode()} and {otherBall.GetHashCode()}",
-            });
+            logger.LogCollision(
+                            ballId1: GetHashCode(),
+                            mass1: Mass,
+                            positionX1: x1,
+                            positionY1: y1,
+                            velocityX1: dataBall.Velocity.x,
+                            velocityY1: dataBall.Velocity.y,
+                            collisionType: CollisionType.BallToBall,
+                            message: $"Ball collision between balls: {GetHashCode()} and {otherBall.GetHashCode()}"
+                        );
         }
 
         #endregion internal

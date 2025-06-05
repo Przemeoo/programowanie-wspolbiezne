@@ -61,7 +61,30 @@ namespace TP.ConcurrentProgramming.Data
                 }
             }
         }
+        public void LogCollision(int ballId1, double mass1, double positionX1, double positionY1, double velocityX1, double velocityY1,
+                                CollisionType collisionType, string message)
+        {
+            if (isRunning && !disposed)
+            {
+                var logEntry = new DiagnosticLogEntry
+                {
+                    Timestamp = DateTime.Now,
+                    BallId1 = ballId1,
+                    Mass1 = mass1,
+                    PositionX1 = positionX1,
+                    PositionY1 = positionY1,
+                    VelocityX1 = velocityX1,
+                    VelocityY1 = velocityY1,
+                    CollisionType = collisionType,
+                    Message = message
+                };
 
+                if (!logBuffer.TryAdd(logEntry))
+                {
+                    System.Diagnostics.Debug.WriteLine("Buffer full, log entry discarded.");
+                }
+            }
+        }
         private void LogToFile()
         {
             while (isRunning)
@@ -126,7 +149,7 @@ namespace TP.ConcurrentProgramming.Data
         }
     }
 
-    public class DiagnosticLogEntry 
+    internal class DiagnosticLogEntry
     {
         public DateTime Timestamp { get; set; }
         public int BallId1 { get; set; }
@@ -135,16 +158,8 @@ namespace TP.ConcurrentProgramming.Data
         public double PositionY1 { get; set; }
         public double VelocityX1 { get; set; }
         public double VelocityY1 { get; set; }
-
-        public int? BallId2 { get; set; }
-        public double? Mass2 { get; set; }
-        public double? PositionX2 { get; set; }
-        public double? PositionY2 { get; set; }
-        public double? VelocityX2 { get; set; }
-        public double? VelocityY2 { get; set; }
         public CollisionType? CollisionType { get; set; }
         public string? Message { get; set; }
-
     }
 
     public enum CollisionType
