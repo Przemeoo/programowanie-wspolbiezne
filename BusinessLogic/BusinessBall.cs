@@ -42,14 +42,15 @@ namespace TP.ConcurrentProgramming.BusinessLogic
                 dataBall.SetVelocity(-velocity.x, velocity.y);
                 logger.Log(new DiagnosticLogEntry
                 {
-                    BallId = GetHashCode(),
-                    PositionX = newPosition.x,
-                    PositionY = newPosition.y,
-                    VelocityX = -velocity.x,
-                    VelocityY = velocity.y,
-                    Mass = Mass,
+                    BallId1 = GetHashCode(),
+                    PositionX1 = newPosition.x,
+                    PositionY1 = newPosition.y,
+                    VelocityX1 = -velocity.x,
+                    VelocityY1 = velocity.y,
+                    Mass1 = Mass,
                     Timestamp = DateTime.Now,
-                    CollisionType = CollisionType.WallLeft
+                    CollisionType = CollisionType.WallLeft,
+                    Message = $"Wall collision - left"
                 });
             }
             else if (newPosition.x + Radius * 2 >= _tableWidth - borderMargin && velocity.x > 0)
@@ -57,14 +58,15 @@ namespace TP.ConcurrentProgramming.BusinessLogic
                 dataBall.SetVelocity(-velocity.x, velocity.y);
                 logger.Log(new DiagnosticLogEntry
                 {
-                    BallId = GetHashCode(),
-                    PositionX = newPosition.x,
-                    PositionY = newPosition.y,
-                    VelocityX = -velocity.x,
-                    VelocityY = velocity.y,
-                    Mass = Mass,
+                    BallId1 = GetHashCode(),
+                    PositionX1 = newPosition.x,
+                    PositionY1 = newPosition.y,
+                    VelocityX1 = -velocity.x,
+                    VelocityY1 = velocity.y,
+                    Mass1 = Mass,
                     Timestamp = DateTime.Now,
-                    CollisionType = CollisionType.WallRight
+                    CollisionType = CollisionType.WallRight,
+                    Message = $"Wall collision - right"
                 });
             }
             if (newPosition.y <= 0 && velocity.y < 0)
@@ -72,14 +74,15 @@ namespace TP.ConcurrentProgramming.BusinessLogic
                 dataBall.SetVelocity(velocity.x, -velocity.y);
                 logger.Log(new DiagnosticLogEntry
                 {
-                    BallId = GetHashCode(),
-                    PositionX = newPosition.x,
-                    PositionY = newPosition.y,
-                    VelocityX = velocity.x,
-                    VelocityY = -velocity.y,
-                    Mass = Mass,
+                    BallId1 = GetHashCode(),
+                    PositionX1 = newPosition.x,
+                    PositionY1 = newPosition.y,
+                    VelocityX1 = velocity.x,
+                    VelocityY1 = -velocity.y,
+                    Mass1 = Mass,
                     Timestamp = DateTime.Now,
-                    CollisionType = CollisionType.WallTop
+                    CollisionType = CollisionType.WallTop,
+                    Message = $"Wall collision - top"
                 });
             }
             else if (newPosition.y + Radius * 2 >= _tableHeight - borderMargin && velocity.y > 0)
@@ -87,14 +90,15 @@ namespace TP.ConcurrentProgramming.BusinessLogic
                 dataBall.SetVelocity(velocity.x, -velocity.y);
                 logger.Log(new DiagnosticLogEntry
                 {
-                    BallId = GetHashCode(),
-                    PositionX = newPosition.x,
-                    PositionY = newPosition.y,
-                    VelocityX = velocity.x,
-                    VelocityY = -velocity.y,
-                    Mass = Mass,
+                    BallId1 = GetHashCode(),
+                    PositionX1 = newPosition.x,
+                    PositionY1 = newPosition.y,
+                    VelocityX1 = velocity.x,
+                    VelocityY1 = -velocity.y,
+                    Mass1 = Mass,
                     Timestamp = DateTime.Now,
-                    CollisionType = CollisionType.WallBottom
+                    CollisionType = CollisionType.WallBottom,
+                    Message = $"Wall collision - bottom"
                 });
             }
         }
@@ -133,14 +137,21 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
             logger.Log(new DiagnosticLogEntry
             {
-                BallId = GetHashCode(),
-                PositionX = x1,
-                PositionY = y1,
-                VelocityX = dataBall.Velocity.x,
-                VelocityY = dataBall.Velocity.y,
-                Mass = Mass,
+                BallId1 = GetHashCode(),
+                PositionX1 = x1,
+                PositionY1 = y1,
+                VelocityX1 = dataBall.Velocity.x,
+                VelocityY1 = dataBall.Velocity.y,
+                Mass1 = Mass,
                 Timestamp = DateTime.Now,
-                CollisionType = CollisionType.BallToBall
+                BallId2 = otherBall.GetHashCode(),
+                Mass2 = otherBall.Mass,
+                PositionX2 = x2,
+                PositionY2 = y2,
+                VelocityX2 = otherBall.dataBall.Velocity.x,
+                VelocityY2 = otherBall.dataBall.Velocity.y,
+                CollisionType = CollisionType.BallToBall,
+                Message = $"Ball collision between balls: {GetHashCode()} and {otherBall.GetHashCode()}",
             });
         }
 

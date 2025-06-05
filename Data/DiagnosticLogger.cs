@@ -129,13 +129,22 @@ namespace TP.ConcurrentProgramming.Data
     public class DiagnosticLogEntry 
     {
         public DateTime Timestamp { get; set; }
-        public int BallId { get; set; }
-        public double Mass { get; set; }
-        public double PositionX { get; set; }
-        public double PositionY { get; set; }
-        public double VelocityX { get; set; }
-        public double VelocityY { get; set; }
+        public int BallId1 { get; set; }
+        public double Mass1 { get; set; }
+        public double PositionX1 { get; set; }
+        public double PositionY1 { get; set; }
+        public double VelocityX1 { get; set; }
+        public double VelocityY1 { get; set; }
+
+        public int? BallId2 { get; set; }
+        public double? Mass2 { get; set; }
+        public double? PositionX2 { get; set; }
+        public double? PositionY2 { get; set; }
+        public double? VelocityX2 { get; set; }
+        public double? VelocityY2 { get; set; }
         public CollisionType? CollisionType { get; set; }
+        public string? Message { get; set; }
+
     }
 
     public enum CollisionType

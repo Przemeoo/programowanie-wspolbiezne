@@ -67,18 +67,7 @@ namespace TP.ConcurrentProgramming.Data
 
     public interface IDiagnosticLogger : IDisposable
     {
-        void Log(DiagnosticLogEntry logEntry); // Zaktualizowano, aby używać interfejsu
+        void Log(DiagnosticLogEntry logEntry); 
     }
 
-    //public interface IDiagnosticLogEntry
-    //{
-    //    DateTime Timestamp { get; set; }
-    //    int BallId { get; set; }
-    //    double Mass { get; set; }
-    //    double PositionX { get; set; }
-    //    double PositionY { get; set; }
-    //    double VelocityX { get; set; }
-    //    double VelocityY { get; set; }
-    //    CollisionType? CollisionType { get; set; }
-    //}
 }
