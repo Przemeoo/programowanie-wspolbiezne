@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace TP.ConcurrentProgramming.Data
 {
@@ -49,34 +50,32 @@ namespace TP.ConcurrentProgramming.Data
             logThread.Start();
         }
 
-
-        public void Log(DiagnosticLogEntry logEntry)
+        public void Log(int eventType, int ballId1, double mass1, double positionX1, double positionY1, double velocityX1, double velocityY1,
+                               int? ballId2 = null, double? mass2 = null, double? positionX2 = null, double? positionY2 = null, double? velocityX2 = null, double? velocityY2 = null )
         {
             if (isRunning && !disposed)
             {
-                logEntry.Timestamp = DateTime.Now; // Ustawiamy czas w loggerze
-                if (!logBuffer.TryAdd(logEntry))
+                if (!Enum.IsDefined(typeof(LogEventType), eventType))
                 {
-                    System.Diagnostics.Debug.WriteLine("Buffer full, log entry discarded.");
+                    System.Diagnostics.Debug.WriteLine($"Invalid type: {eventType}");
+                    return;
                 }
-            }
-        }
-        public void LogCollision(int ballId1, double mass1, double positionX1, double positionY1, double velocityX1, double velocityY1,
-                                CollisionType collisionType, string message)
-        {
-            if (isRunning && !disposed)
-            {
                 var logEntry = new DiagnosticLogEntry
                 {
                     Timestamp = DateTime.Now,
+                    EventType = eventType,
                     BallId1 = ballId1,
                     Mass1 = mass1,
                     PositionX1 = positionX1,
                     PositionY1 = positionY1,
                     VelocityX1 = velocityX1,
                     VelocityY1 = velocityY1,
-                    CollisionType = collisionType,
-                    Message = message
+                    BallId2 = ballId2,
+                    Mass2 = mass2,
+                    PositionX2 = positionX2,
+                    PositionY2 = positionY2,
+                    VelocityX2 = velocityX2,
+                    VelocityY2 = velocityY2,
                 };
 
                 if (!logBuffer.TryAdd(logEntry))
@@ -85,8 +84,14 @@ namespace TP.ConcurrentProgramming.Data
                 }
             }
         }
+
         private void LogToFile()
         {
+            var options = new JsonSerializerOptions
+            {
+                IgnoreNullValues = true
+            };
+
             while (isRunning)
             {
                 if (logBuffer.TryTake(out var logEntry))
@@ -95,8 +100,8 @@ namespace TP.ConcurrentProgramming.Data
                         {
                             lock (fileLock)
                             {
-                                string json = JsonSerializer.Serialize(logEntry);
-                                logWriter.WriteLine(json);
+                            string json = JsonSerializer.Serialize(logEntry, options);
+                            logWriter.WriteLine(json);
                             }
                         }
                         catch (IOException ex)
@@ -152,24 +157,33 @@ namespace TP.ConcurrentProgramming.Data
     internal class DiagnosticLogEntry
     {
         public DateTime Timestamp { get; set; }
+        public int EventType { get; set; }
+
+        public string EventTypeName => Enum.GetName(typeof(LogEventType), EventType) ?? "Unknown";
         public int BallId1 { get; set; }
         public double Mass1 { get; set; }
         public double PositionX1 { get; set; }
         public double PositionY1 { get; set; }
         public double VelocityX1 { get; set; }
         public double VelocityY1 { get; set; }
-        public CollisionType? CollisionType { get; set; }
-        public string? Message { get; set; }
+        public int? BallId2 { get; set; }
+        public double? Mass2 { get; set; }
+        public double? PositionX2 { get; set; }
+        public double? PositionY2 { get; set; }
+        public double? VelocityX2 { get; set; }
+        public double? VelocityY2 { get; set; }
+
     }
 
-    public enum CollisionType
+   
+    public enum LogEventType
     {
-        BallMovment,
-        WallLeft,
-        WallRight,
-        WallTop,
-        WallBottom,
-        BallToBall
+        BallMovement,
+        BallToBallCollision,
+        WallCollisionTop,
+        WallCollisionBottom,
+        WallCollisionLeft,
+        WallCollisionRight
     }
 
 }

@@ -69,19 +69,17 @@ namespace TP.ConcurrentProgramming.Data
         {
             Vector velocity = (Vector)Velocity;
             position = new Vector(position.x + velocity.x * deltaTime, position.y + velocity.y * deltaTime);
-            var logEntry = new DiagnosticLogEntry
-            {
-                BallId1 = GetHashCode(),
-                Mass1 = Mass,
-                PositionX1 = position.x,
-                PositionY1 = position.y,
-                VelocityX1 = velocity.x,
-                VelocityY1 = velocity.y,
-                CollisionType = CollisionType.BallMovment,
-                Message = $"Ball movment"
-            };
 
-            logger.Log(logEntry);
+            logger.Log(
+                    eventType: 0,
+                    ballId1: GetHashCode(),
+                    mass1: Mass,
+                    positionX1: position.x,
+                    positionY1: position.y,
+                    velocityX1: velocity.x,
+                    velocityY1: velocity.y
+                );
+
             RaiseNewPositionChangeNotification();
         }
 
