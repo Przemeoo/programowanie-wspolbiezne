@@ -70,7 +70,9 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
         }
         private class TestLogger : IDiagnosticLogger
         {
-            public void Log(string message)
+            public void Log(int eventType, int ballId1, double mass1, double positionX1, double positionY1, double velocityX1, double velocityY1,
+                                    int? ballId2 = null, double? mass2 = null, double? positionX2 = null, double? positionY2 = null,
+                                    double? velocityX2 = null, double? velocityY2 = null)
             {
                 
             }
@@ -78,6 +80,10 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
             public void Stop()
             {
                
+            }
+            public void Dispose()
+            {
+                
             }
         }
 
