@@ -11,7 +11,7 @@ namespace TP.ConcurrentProgramming.Data
         private static readonly Lazy<DiagnosticLogger> _instance = new Lazy<DiagnosticLogger>(() => new DiagnosticLogger());
         public static DiagnosticLogger Instance => _instance.Value;
 
-        private readonly DiagnosticBuffer logBuffer;
+        private readonly ConcurrentQueue<DiagnosticLogEntry> logBuffer;
         private readonly Thread logThread;
         private volatile bool isRunning = true;
         private readonly StreamWriter logWriter;
@@ -22,7 +22,7 @@ namespace TP.ConcurrentProgramming.Data
 
         private DiagnosticLogger()
         {
-            logBuffer = new DiagnosticBuffer(MaxBufferSize);
+            logBuffer = new ConcurrentQueue<DiagnosticLogEntry>();
             string projectDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\.."));
             string logsDirectory = Path.Combine(projectDirectory, "Logs");
             Directory.CreateDirectory(logsDirectory);
@@ -63,7 +63,7 @@ namespace TP.ConcurrentProgramming.Data
                 var logEntry = new DiagnosticLogEntry
                 {
                     Timestamp = DateTime.Now,
-                    EventType = eventType,
+                    MessageType = (LogEventType)eventType,
                     BallId1 = ballId1,
                     Mass1 = mass1,
                     PositionX1 = positionX1,
@@ -78,7 +78,11 @@ namespace TP.ConcurrentProgramming.Data
                     VelocityY2 = velocityY2,
                 };
 
-                if (!logBuffer.TryAdd(logEntry))
+                if (logBuffer.Count < MaxBufferSize)
+                {
+                    logBuffer.Enqueue(logEntry);
+                }
+                else
                 {
                     System.Diagnostics.Debug.WriteLine("Buffer full, log entry discarded.");
                 }
@@ -94,7 +98,7 @@ namespace TP.ConcurrentProgramming.Data
 
             while (isRunning)
             {
-                if (logBuffer.TryTake(out var logEntry))
+                if (logBuffer.TryDequeue(out var logEntry))
                 {
                         try
                         {
@@ -130,7 +134,7 @@ namespace TP.ConcurrentProgramming.Data
 
             logThread.Join();
 
-            while (logBuffer.TryTake(out var logEntry))
+            while (logBuffer.TryDequeue(out var logEntry))
             {
                 try
                 {
@@ -157,9 +161,7 @@ namespace TP.ConcurrentProgramming.Data
     internal class DiagnosticLogEntry
     {
         public DateTime Timestamp { get; set; }
-        public int EventType { get; set; }
-
-        public string EventTypeName => Enum.GetName(typeof(LogEventType), EventType) ?? "Unknown";
+        public LogEventType MessageType { get; set; }
         public int BallId1 { get; set; }
         public double Mass1 { get; set; }
         public double PositionX1 { get; set; }
