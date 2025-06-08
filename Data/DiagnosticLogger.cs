@@ -8,15 +8,14 @@ namespace TP.ConcurrentProgramming.Data
 {
     internal class DiagnosticLogger : IDiagnosticLogger, IDisposable
     {
-        private static readonly Lazy<DiagnosticLogger> _instance = new Lazy<DiagnosticLogger>(() => new DiagnosticLogger());
-        public static DiagnosticLogger Instance => _instance.Value;
+        private static readonly Lazy<DiagnosticLogger> instance = new Lazy<DiagnosticLogger>(() => new DiagnosticLogger());
+        public static DiagnosticLogger Instance => instance.Value;
 
         private readonly ConcurrentQueue<DiagnosticLogEntry> logBuffer;
         private readonly Thread logThread;
         private volatile bool isRunning = true;
         private readonly StreamWriter logWriter;
         private readonly string logFilePath;
-        private readonly object fileLock = new object();
         private bool disposed = false;
         private const int MaxBufferSize = 1500;
 
@@ -35,7 +34,7 @@ namespace TP.ConcurrentProgramming.Data
                     {
                         File.Delete(file);
                     }
-                    catch (IOException ex) 
+                    catch (IOException ex)
                     {
                         System.Diagnostics.Debug.WriteLine($"Failed to delete old log file '{file}': {ex.Message}");
                     }
@@ -51,7 +50,7 @@ namespace TP.ConcurrentProgramming.Data
         }
 
         public void Log(int eventType, int ballId1, double mass1, double positionX1, double positionY1, double velocityX1, double velocityY1,
-                               int? ballId2 = null, double? mass2 = null, double? positionX2 = null, double? positionY2 = null, double? velocityX2 = null, double? velocityY2 = null )
+                               int? ballId2 = null, double? mass2 = null, double? positionX2 = null, double? positionY2 = null, double? velocityX2 = null, double? velocityY2 = null)
         {
             if (isRunning && !disposed)
             {
@@ -100,23 +99,20 @@ namespace TP.ConcurrentProgramming.Data
             {
                 if (logBuffer.TryDequeue(out var logEntry))
                 {
-                        try
-                        {
-                            lock (fileLock)
-                            {
-                            string json = JsonSerializer.Serialize(logEntry, options);
-                            logWriter.WriteLine(json);
-                            }
-                        }
-                        catch (IOException ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine($"Error writing to log file: {ex.Message}");
-                        }
-                        catch (JsonException ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine($"Error serializing log entry: {ex.Message}");
-                        }
+                    try
+                    {
+                        string json = JsonSerializer.Serialize(logEntry, options);
+                        logWriter.WriteLine(json);
                     }
+                    catch (IOException ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error writing to log file: {ex.Message}");
+                    }
+                    catch (JsonException ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error serializing log entry: {ex.Message}");
+                    }
+                }
                 else
                 {
                     Thread.Sleep(10);
@@ -128,64 +124,72 @@ namespace TP.ConcurrentProgramming.Data
         {
             if (disposed)
                 return;
-
-            isRunning = false;
-            disposed = true;
-
-            logThread.Join();
-
-            while (logBuffer.TryDequeue(out var logEntry))
+            try
             {
-                try
+                isRunning = false;
+                disposed = true;
+
+                logThread?.Join(1000);
+
+                var options = new JsonSerializerOptions
                 {
-                    lock (fileLock)
+                    IgnoreNullValues = true
+                };
+
+                while (logBuffer.TryDequeue(out var logEntry))
+                {
+                    try
                     {
-                        string json = JsonSerializer.Serialize(logEntry);
+                        string json = JsonSerializer.Serialize(logEntry, options);
                         logWriter.WriteLine(json);
                     }
+                    catch (IOException ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error writing to log file during dispose: {ex.Message}");
+                    }
+                    catch (JsonException ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error serializing log entry during dispose: {ex.Message}");
+                    }
                 }
-                catch (IOException ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error writing to log file during dispose: {ex.Message}");
-                }
-                catch (JsonException ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error serializing log entry during dispose: {ex.Message}");
-                }
+                logWriter?.Dispose();
+
             }
-
-            logWriter?.Dispose();
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error during resource disposal: {ex.Message}");
+            }
         }
+
+        internal class DiagnosticLogEntry
+        {
+            public DateTime Timestamp { get; set; }
+            public LogEventType MessageType { get; set; }
+            public int BallId1 { get; set; }
+            public double Mass1 { get; set; }
+            public double PositionX1 { get; set; }
+            public double PositionY1 { get; set; }
+            public double VelocityX1 { get; set; }
+            public double VelocityY1 { get; set; }
+            public int? BallId2 { get; set; }
+            public double? Mass2 { get; set; }
+            public double? PositionX2 { get; set; }
+            public double? PositionY2 { get; set; }
+            public double? VelocityX2 { get; set; }
+            public double? VelocityY2 { get; set; }
+
+        }
+
+
+        public enum LogEventType
+        {
+            BallMovement,
+            BallToBallCollision,
+            WallCollisionTop,
+            WallCollisionBottom,
+            WallCollisionLeft,
+            WallCollisionRight
+        }
+
     }
-
-    internal class DiagnosticLogEntry
-    {
-        public DateTime Timestamp { get; set; }
-        public LogEventType MessageType { get; set; }
-        public int BallId1 { get; set; }
-        public double Mass1 { get; set; }
-        public double PositionX1 { get; set; }
-        public double PositionY1 { get; set; }
-        public double VelocityX1 { get; set; }
-        public double VelocityY1 { get; set; }
-        public int? BallId2 { get; set; }
-        public double? Mass2 { get; set; }
-        public double? PositionX2 { get; set; }
-        public double? PositionY2 { get; set; }
-        public double? VelocityX2 { get; set; }
-        public double? VelocityY2 { get; set; }
-
-    }
-
-   
-    public enum LogEventType
-    {
-        BallMovement,
-        BallToBallCollision,
-        WallCollisionTop,
-        WallCollisionBottom,
-        WallCollisionLeft,
-        WallCollisionRight
-    }
-
 }
