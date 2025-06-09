@@ -9,8 +9,6 @@ namespace TP.ConcurrentProgramming.Data
     internal class DiagnosticLogger : IDiagnosticLogger, IDisposable
     {
         private static readonly Lazy<DiagnosticLogger> instance = new Lazy<DiagnosticLogger>(() => new DiagnosticLogger());
-        public static DiagnosticLogger Instance => instance.Value;
-
         private readonly ConcurrentQueue<DiagnosticLogEntry> logBuffer;
         private readonly Thread logThread;
         private volatile bool isRunning = true;
@@ -18,6 +16,11 @@ namespace TP.ConcurrentProgramming.Data
         private readonly string logFilePath;
         private bool disposed = false;
         private const int MaxBufferSize = 1500;
+
+        internal static DiagnosticLogger GetInstance()
+        {
+            return instance.Value;
+        }
 
         private DiagnosticLogger()
         {
@@ -159,6 +162,11 @@ namespace TP.ConcurrentProgramming.Data
             {
                 System.Diagnostics.Debug.WriteLine($"Error during resource disposal: {ex.Message}");
             }
+        }
+
+        internal static DiagnosticLogger CreateDiagnosticLogger()
+        {
+            return new DiagnosticLogger();
         }
 
         internal class DiagnosticLogEntry

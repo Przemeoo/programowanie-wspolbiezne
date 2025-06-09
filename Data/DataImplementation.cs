@@ -23,6 +23,7 @@ namespace TP.ConcurrentProgramming.Data
 
             Random random = new Random();
             double radius = 0.03 * tableHeight;
+            IDiagnosticLogger logger = GetDiagnosticLogger();
 
             for (int i = 0; i < numberOfBalls; i++)
             {
@@ -60,7 +61,7 @@ namespace TP.ConcurrentProgramming.Data
 
                 Vector initialVelocity = new Vector((random.NextDouble() - 0.5) * 150, (random.NextDouble() - 0.5) * 150);
 
-                Ball newBall = new(startingPosition, initialVelocity);
+                Ball newBall = new(startingPosition, initialVelocity, logger);
                 upperLayerHandler(startingPosition, newBall);
 
                 lock (_lock)
@@ -87,6 +88,7 @@ namespace TP.ConcurrentProgramming.Data
                         }
                         BallsList.Clear();
                     }
+                    GetDiagnosticLogger().Dispose();
                 }
                 Disposed = true;
             }

@@ -24,7 +24,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         internal BusinessLogicImplementation(UnderneathLayerAPI? underneathLayer)
         {
             layerBellow = underneathLayer == null ? UnderneathLayerAPI.GetDataLayer() : underneathLayer;
-            logger = UnderneathLayerAPI.GetLogger();
+            logger = layerBellow.GetDiagnosticLogger();
         }
 
         #endregion ctor

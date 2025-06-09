@@ -17,15 +17,16 @@ namespace TP.ConcurrentProgramming.Data
     {
         #region ctor
         private static readonly Random random = new Random();
-        private readonly DiagnosticLogger logger = DiagnosticLogger.Instance;
-        internal Ball(Vector initialPosition, Vector initialVelocity)
+        private readonly IDiagnosticLogger logger;
+        internal Ball(Vector initialPosition, Vector initialVelocity, IDiagnosticLogger logger)
         {
             position = initialPosition;
             velocity = initialVelocity;
             Mass = random.NextDouble() * 2.0 + 2.0;
             Running = true;
             MoveThread = null!;
-  
+            this.logger = logger;
+
         }
       
         #endregion ctor
@@ -122,7 +123,6 @@ namespace TP.ConcurrentProgramming.Data
             Running = false;
             MoveThread?.Join();
             MoveThread = null;
-            DiagnosticLogger.Instance.Dispose();
         }
         #endregion internal
     }

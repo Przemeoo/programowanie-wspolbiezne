@@ -18,9 +18,9 @@ namespace TP.ConcurrentProgramming.Data
         {
             return modelInstance.Value;
         }
-        public static IDiagnosticLogger GetLogger()
+        public IDiagnosticLogger GetDiagnosticLogger()
         {
-            return DiagnosticLogger.Instance;
+            return DiagnosticLogger.GetInstance();
         }
 
         #endregion Layer Factory
