@@ -8,6 +8,8 @@
 //
 //_____________________________________________________________________________________________________________________________________
 
+using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
+
 namespace TP.ConcurrentProgramming.Data.Test
 {
     [TestClass]
@@ -17,7 +19,8 @@ namespace TP.ConcurrentProgramming.Data.Test
         public void ConstructorTestMethod()
         {
             Vector testinVector = new Vector(0.0, 0.0);
-            Ball newInstance = new(testinVector, testinVector);
+            IDiagnosticLogger logger = DiagnosticLogger.GetInstance();
+            Ball newInstance = new(testinVector, testinVector, logger);
         }
 
     }

@@ -164,10 +164,6 @@ namespace TP.ConcurrentProgramming.Data
             }
         }
 
-        internal static DiagnosticLogger CreateDiagnosticLogger()
-        {
-            return new DiagnosticLogger();
-        }
 
         internal class DiagnosticLogEntry
         {
