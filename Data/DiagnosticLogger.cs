@@ -95,7 +95,8 @@ namespace TP.ConcurrentProgramming.Data
         {
             var options = new JsonSerializerOptions
             {
-                IgnoreNullValues = true
+                IgnoreNullValues = true,
+                Converters = { new JsonStringEnumConverter() }
             };
 
             while (isRunning)
@@ -136,7 +137,8 @@ namespace TP.ConcurrentProgramming.Data
 
                 var options = new JsonSerializerOptions
                 {
-                    IgnoreNullValues = true
+                    IgnoreNullValues = true,
+                    Converters = { new JsonStringEnumConverter() }
                 };
 
                 while (logBuffer.TryDequeue(out var logEntry))
